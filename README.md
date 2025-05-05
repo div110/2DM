@@ -1,6 +1,3 @@
-# napady
+# 2DM
 
-1. Scrabble
-2. Duck Hunt
-3. 2D Adventura
-4. Casino
+2D hra
