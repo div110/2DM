@@ -1,4 +1,4 @@
-class hero():
+class Hero():
     def __init__(self,position_x, position_y, health_points):
         self.position_x : int = position_x
         self.position_y : int = position_y
