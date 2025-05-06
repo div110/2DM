@@ -1,9 +1,8 @@
 class Enemy():
-    def __init__(self, pos_x, pos_y, difficulty):
-        self.pos_x = pos_x
-        self.pos_y = pos_y
-        self.difficulty = difficulty
-    
+    def __init__(self, position_x, position_y, difficulty):
+        self.position_x : int = position_x
+        self.position_y : int = position_y
+        self.difficulty : int = difficulty 
     
     
     def enemy_movement(player_x, player_y):
