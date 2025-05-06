@@ -1,8 +1,8 @@
 class Hero():
-    def __init__(self,position_x, position_y, health_points):
+    def __init__(self,position_x, position_y, max_health):
         self.position_x : int = position_x
         self.position_y : int = position_y
-        self.health_points : int = health_points
+        self.current_health : int = max_health
         self.image : str = image
         self.level : int = level
         self.max_health : int = max_health
