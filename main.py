@@ -1,6 +1,12 @@
 import random, sys, time, math, pygame
 from pygame.locals import *
 
+
+
+from hero import Hero
+from enemy import Enemy
+
+
 """
 POZNAMKOVAL SOM PO SLOVENSKY LEBO SOM TO NARYCHLO ZBUCHAVAL POTOM SA TO MOZE KLUDNE ZMENIT
 """
@@ -17,6 +23,7 @@ HALFWINHEIGHT = int(WINHEIGHT / 2)
 BGCOLOR = (20, 255, 0)
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
+BLACK = (0, 0, 0)
 
 CAMERASLACK = 90     # kolko sa musi hrac pohnut aby sa pohla kamera
 MOVERATE = 9         
@@ -37,6 +44,7 @@ ENEMYHEALTH = 1
 
 def main():
     global FPSCLOCK, DISPLAYSURF, BASICFONT
+    global main_character, RHEROIMG, LHEROIMG, ENEMYIMG
 
     pygame.init()
     FPSCLOCK = pygame.time.Clock()
@@ -45,38 +53,46 @@ def main():
     BASICFONT = pygame.font.Font('freesansbold.ttf', 32)
 
     #nacitanie obrazkov hraca ,enemyho a dalsich veciciek
-    # nieco ako PLAYERIMAGE = pygame.image.load('player.png')
-
+    RHEROIMG = pygame.image.load('graphics/boxer2.png')
+    LHEROIMG = pygame.transform.flip(RHEROIMG, True, False)
+    ENEMYIMG = pygame.image.load('graphics/policeman.png')
 
     # tu vytvorit nejake texty game over,win atd. aby sme je mohli potom pouzit a zobrazit na obrazovke
-
+    game_over_surf, game_over_rect = make_text("GAME OVER", WHITE, BLACK, 0,0)
+    game_win_surf, game_win_rect = make_text("YOU HAVE ACHIEVED MAX LEVEL", WHITE, BLACK, 0,0)
 
 
     while True:
         run_game()
 
 def run_game():
-    global FPSCLOCK, DISPLAYSURF
+    # tu sa nastavuju pociatocne hodnoty aby sa vynulovali pri resete hry
+    global FPSCLOCK, DISPLAYSURF, main_character
+    global moveDown, moveLeft, moveRight, moveUp, camera_x, camera_y
+    global gameOverMode, winMode, immortalityMode, immortalityStartTime
     immortalityMode = False
     immortalityStartTime = 0
     gameOverMode = False        
     winMode = False     
 
 
-    camerax = 0
-    cameray = 0
+    camera_x = 0
+    camera_y = 0
 
 
-    moveleft = False
-    moveright = False   
-    moveup = False
-    movedown = False
+    main_character = Hero(RHEROIMG, HALFWINWIDTH, HALFWINHEIGHT, STARTHEALTH, STARTLEVEL, MAXHEALTH)
+
+    moveLeft = False
+    moveRight = False   
+    moveUp = False
+    moveDown = False
 
     #spravit nejake pozadie pociatocne na obrazovke
 
-
+    #game loop 
     while True:
 
+        # zistujem ci ma hrac este pociatocnu nesmrtelnost
         if immortalityMode and time.time() - immortalityStartTime > NOHITTIME:
             immortalityMode = False
 
@@ -93,7 +109,7 @@ def run_game():
         # vykreslit vsetky objetkty na obrazovke
 
         # vykreslit hraca a jeho zivoty
-
+        draw_hero(main_character,camera_x,camera_y)
 
         for event in pygame.event.get(): # event handling cyklus
             if event.type == QUIT:
@@ -111,10 +127,15 @@ def run_game():
                     moveRight = False
                     moveLeft = True
                     #otocim hraca do lava
+                    if main_character.image == RHEROIMG:
+                        main_character.image = LHEROIMG
+
                 elif event.key in (K_RIGHT, K_d):
                     moveLeft = False
                     moveRight = True
                     #otocim hraca do prava
+                    if main_character.image == LHEROIMG:
+                        main_character.image = RHEROIMG
 
             #zastavim pohyb hraca ak sa uvolni klavesa
             elif event.type == KEYUP:
@@ -150,6 +171,17 @@ def run_game():
 def terminate():
     pygame.quit()
     sys.exit()
+
+def make_text(text, color, bg_color, top, left):
+    text_surf = BASICFONT.render(text, True, color, bg_color)
+    text_rect = text_surf.get_rect()
+    text_rect.topleft = (top, left)
+    return text_surf, text_rect
+
+def draw_hero(hero, camera_x, camera_y):
+    heroRect = hero.image.get_rect()
+    heroRect.center = (hero.position_x - camera_x, hero.position_y - camera_y)
+    DISPLAYSURF.blit(hero.image, heroRect)
 
 if __name__ == '__main__':
     main()
