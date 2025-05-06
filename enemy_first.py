@@ -5,5 +5,5 @@ class Enemy():
         self.difficulty : int = difficulty 
     
     
-    def enemy_movement(player_x, player_y):
+    def enemy_movement(self, player_x, player_y):
         pass
