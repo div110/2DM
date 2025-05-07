@@ -1,7 +1,7 @@
 import random, sys, time, math, pygame
 from pygame.locals import *
 
-
+from ui import *
 
 from hero import Hero
 from enemy import Enemy
@@ -142,6 +142,7 @@ def run_game():
 
         # vykreslit hraca a jeho zivoty
         draw_hero(main_character,camera_x,camera_y)
+        main_character.draw_health_bar(DISPLAYSURF)
 
         for event in pygame.event.get(): # event handling cyklus
             if event.type == QUIT:
@@ -260,10 +261,12 @@ if __name__ == '__main__':
 """
 spravit FUNKCIE/METODY na tieto veci:
 
-vykreslit nejaky health bar
+vykreslit nejaky health bar - DONE -> hero.draw_health_bar()
 ziskat nejaku nahodnu rychlost enemy
 tvorba noveho enemy
 tvorba nejakeho novehu objektu (nejaky item ktory sa da ziskat koliziuou a ziskam z neho nieco)
 nejaky vypocet toho bounnce pohybu hraca/enemy
 
+
+Pridal jsem textury - graphics, jsou jen prozatim
 """
