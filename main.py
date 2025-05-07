@@ -84,7 +84,7 @@ def run_game():
     camera_y = 0
 
     # vytvorim hraca a nastavim mu pociatocne hodnoty
-    main_character = Hero(RHEROIMG, HALFWINWIDTH, HALFWINHEIGHT, STARTHEALTH, STARTLEVEL, MAXHEALTH)
+    main_character = Hero(RHEROIMG, HALFWINWIDTH, HALFWINHEIGHT, STARTLEVEL, MAXHEALTH)
 
     moveLeft = False
     moveRight = False   
