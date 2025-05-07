@@ -5,7 +5,7 @@ from pygame.locals import *
 
 from hero import Hero
 from enemy import Enemy
-
+from tree import Tree
 
 """
 POZNAMKOVAL SOM PO SLOVENSKY LEBO SOM TO NARYCHLO ZBUCHAVAL POTOM SA TO MOZE KLUDNE ZMENIT
@@ -24,14 +24,15 @@ BGCOLOR = (20, 255, 0)
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 BLACK = (0, 0, 0)
+GREEN = (0, 255, 0)
 
-CAMERASLACK = 90     # kolko sa musi hrac pohnut aby sa pohla kamera
-MOVERATE = 9         
+CAMERASLACK = 180     # kolko sa musi hrac pohnut aby sa pohla kamera
+MOVERATE = 25     # rychlost pohybu hraca   
 BOUNCERATE = 6      
 BOUNCEHEIGHT = 30    
 STARTLEVEL = 1
 STARTHEALTH = 5
-WINLEVEL = 300       
+WINLEVEL = 300   
 NOHITTIME = 2      # sekundy kym je hrac nezranitelny
 MAXHEALTH = 10  
 
@@ -41,10 +42,12 @@ ENEMYMAXSPEED = 7
 DIRCHANGEFREQ = 2 # direction change frequency - ako casto sa enemy pohybuju nahodne do novej strany
 ENEMYHEALTH = 1
 
+NUMSOFTREES = 50 
+MAXOFFSCREENPOS = 1000 # maximalna vzdialenost od obrazovky na ktorej sa moze nachadzat objekt
 
 def main():
     global FPSCLOCK, DISPLAYSURF, BASICFONT
-    global main_character, RHEROIMG, LHEROIMG, ENEMYIMG
+    global main_character, RHEROIMG, LHEROIMG, ENEMYIMG, TREEIMG
 
     pygame.init()
     FPSCLOCK = pygame.time.Clock()
@@ -56,6 +59,7 @@ def main():
     RHEROIMG = pygame.image.load('graphics/boxer2.png')
     LHEROIMG = pygame.transform.flip(RHEROIMG, True, False)
     ENEMYIMG = pygame.image.load('graphics/policeman.png')
+    TREEIMG = pygame.image.load('graphics/tree_v1.png')
 
     # tu vytvorit nejake texty game over,win atd. aby sme je mohli potom pouzit a zobrazit na obrazovke
     game_over_surf, game_over_rect = make_text("GAME OVER", WHITE, BLACK, 0,0)
@@ -79,7 +83,7 @@ def run_game():
     camera_x = 0
     camera_y = 0
 
-
+    # vytvorim hraca a nastavim mu pociatocne hodnoty
     main_character = Hero(RHEROIMG, HALFWINWIDTH, HALFWINHEIGHT, STARTHEALTH, STARTLEVEL, MAXHEALTH)
 
     moveLeft = False
@@ -89,9 +93,25 @@ def run_game():
 
     #spravit nejake pozadie pociatocne na obrazovke
 
+    # tu vytvorim nejake objekty(pozadie nie enemy) ktore sa budu nachadzat po obrazovke a budu sa generovat nahodne 
+    trees_objs = []
+    for i in range(0, NUMSOFTREES):
+            tree = Tree(TREEIMG, 0, 0)
+            tree.get_random_position(MAXOFFSCREENPOS, WINWIDTH, WINHEIGHT)
+            trees_objs.append((tree))
+
+
     #game loop 
     while True:
-
+        # aktualitizujem pociatocne hodnoty hraca a jeho pohyb
+        if moveLeft:
+            main_character.position_x -= MOVERATE
+        if moveRight:
+            main_character.position_x += MOVERATE
+        if moveUp:
+            main_character.position_y -= MOVERATE
+        if moveDown:
+            main_character.position_y += MOVERATE
         # zistujem ci ma hrac este pociatocnu nesmrtelnost
         if immortalityMode and time.time() - immortalityStartTime > NOHITTIME:
             immortalityMode = False
@@ -99,12 +119,24 @@ def run_game():
         # pohyb vsetkych enemych
 
         #sledovat vsetky objekty ci ich netreba zmazat ak su mimo obrazovku
-
+        for (tree) in trees_objs:
+            if tree.is_off_screen( camera_x, camera_y, MAXOFFSCREENPOS, WINWIDTH, WINHEIGHT):
+                trees_objs.remove(tree)
+                tree = Tree(TREEIMG, 0, 0)
+                tree.get_random_position_off_screen(moveUp, moveDown, moveLeft, moveRight, MAXOFFSCREENPOS, WINWIDTH, WINHEIGHT)
+                trees_objs.append(tree)
         # pridat dalsie objekty do hry ak treba
 
         # pohnut kamerou ak sa postava pohne mimo nejakej oblasti v strede obrazovky
 
         # vykreslit pozadie
+        DISPLAYSURF.fill(GREEN)
+         # vykreslit strom na pozadi
+
+        for tree in trees_objs:
+            treeRect = tree.image.get_rect()
+            treeRect.center = (tree.position_x - camera_x, tree.position_y - camera_y)
+            DISPLAYSURF.blit(tree.image, treeRect)
 
         # vykreslit vsetky objetkty na obrazovke
 
@@ -153,6 +185,13 @@ def run_game():
 
 
         # pohyb hraca
+        moving_hero(main_character, moveLeft, moveRight, moveUp, moveDown) 
+        # pohyb kamery ak sa hrac pohnul mimo obrazovky
+        moving_camera(main_character)
+
+        # test v konzole vypisuje poziciu hraca a kamery
+        print(f"hero pos x {main_character.position_x}, hero pos y {main_character.position_y},camera x {camera_x}, camera y{camera_y}")
+
 
         # pohyb hraca ak je vsetko ok a nie je game over alebo win
 
@@ -168,20 +207,51 @@ def run_game():
         FPSCLOCK.tick(FPS)
     
 
-def terminate():
+def terminate(): # ukonci program
     pygame.quit()
     sys.exit()
 
-def make_text(text, color, bg_color, top, left):
+def make_text(text, color, bg_color, top, left): # vytvori text na obrazovke
     text_surf = BASICFONT.render(text, True, color, bg_color)
     text_rect = text_surf.get_rect()
     text_rect.topleft = (top, left)
     return text_surf, text_rect
 
-def draw_hero(hero, camera_x, camera_y):
+def draw_hero(hero, camera_x, camera_y): # vykresli hraca na obrazovku
     heroRect = hero.image.get_rect()
     heroRect.center = (hero.position_x - camera_x, hero.position_y - camera_y)
     DISPLAYSURF.blit(hero.image, heroRect)
+
+def moving_hero(hero, moveLeft, moveRight, moveUp, moveDown): # posuva hraca ak sa pohne
+    global camera_x, camera_y
+    if moveLeft and hero.position_x > CAMERASLACK:
+        hero.position_x -= MOVERATE
+    if hero.position_x < camera_x + CAMERASLACK:
+        camera_x -= MOVERATE
+    if moveRight and hero.position_x < WINWIDTH - CAMERASLACK:
+        hero.position_x += MOVERATE
+    if hero.position_x > camera_x + WINWIDTH - CAMERASLACK:
+        camera_x += MOVERATE
+    if moveUp and hero.position_y > CAMERASLACK:
+        hero.position_y -= MOVERATE
+    if hero.position_y < camera_y + CAMERASLACK:
+        camera_y -= MOVERATE
+    if moveDown and hero.position_y < WINHEIGHT - CAMERASLACK:
+        hero.position_y += MOVERATE
+    if hero.position_y > camera_y + WINHEIGHT - CAMERASLACK:
+        camera_y += MOVERATE
+
+def moving_camera(hero): # posuvam kameru ak sa hrac pohnul mimo obrazovky
+    global camera_x, camera_y
+    if hero.position_x < camera_x + CAMERASLACK:
+        camera_x -= MOVERATE
+    if hero.position_x > camera_x + WINWIDTH - CAMERASLACK:
+        camera_x += MOVERATE
+    if hero.position_y < camera_y + CAMERASLACK:
+        camera_y -= MOVERATE
+    if hero.position_y > camera_y + WINHEIGHT - CAMERASLACK:
+        camera_y += MOVERATE
+
 
 if __name__ == '__main__':
     main()
@@ -192,12 +262,8 @@ spravit FUNKCIE/METODY na tieto veci:
 
 vykreslit nejaky health bar
 ziskat nejaku nahodnu rychlost enemy
-zidskat nahodnu poziciu mimo kameru
 tvorba noveho enemy
 tvorba nejakeho novehu objektu (nejaky item ktory sa da ziskat koliziuou a ziskam z neho nieco)
-zistit ci je nieco mimo obrazovku
 nejaky vypocet toho bounnce pohybu hraca/enemy
-ziskat nahodnu poziciu na obrazovke
-
 
 """
