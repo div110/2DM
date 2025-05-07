@@ -1,5 +1,5 @@
 class Hero():
-    def __init__(self,position_x, position_y, max_health):
+    def __init__(self,image, position_x, position_y, level max_health):
         self.position_x : int = position_x
         self.position_y : int = position_y
         self.current_health : int = max_health
