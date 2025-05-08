@@ -20,3 +20,4 @@ class Hero():
         pygame.draw.rect(DISPLAYSURF,(150,150,150),(0,0,150,30))
         pygame.draw.rect(DISPLAYSURF,(255,0,0),(5,5,140*(self.current_health//self.max_health),20))
         return
+

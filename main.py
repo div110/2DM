@@ -1,7 +1,6 @@
 import random, sys, time, math, pygame
 from pygame.locals import *
 
-from ui import *
 
 from hero import Hero
 from enemy import Enemy
@@ -34,7 +33,7 @@ STARTLEVEL = 1
 STARTHEALTH = 5
 WINLEVEL = 300   
 NOHITTIME = 2      # sekundy kym je hrac nezranitelny
-MAXHEALTH = 10  
+MAXHEALTH = 100  
 
 NUMSENEMY = 30
 ENEMYMINSPEED = 3
@@ -42,7 +41,7 @@ ENEMYMAXSPEED = 7
 DIRCHANGEFREQ = 2 # direction change frequency - ako casto sa enemy pohybuju nahodne do novej strany
 ENEMYHEALTH = 1
 
-NUMSOFTREES = 50 
+NUMSOFTREES = 10 
 MAXOFFSCREENPOS = 1000 # maximalna vzdialenost od obrazovky na ktorej sa moze nachadzat objekt
 
 def main():
@@ -265,7 +264,7 @@ vykreslit nejaky health bar - DONE -> hero.draw_health_bar()
 ziskat nejaku nahodnu rychlost enemy
 tvorba noveho enemy
 tvorba nejakeho novehu objektu (nejaky item ktory sa da ziskat koliziuou a ziskam z neho nieco)
-nejaky vypocet toho bounnce pohybu hraca/enemy
+nejaky vypocet toho bounnce pohybu hraca/enemy - NE->pohyby vyresime na Discordu
 
 
 Pridal jsem textury - graphics, jsou jen prozatim
