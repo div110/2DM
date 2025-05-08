@@ -18,31 +18,31 @@ HALFWINWIDTH = int(WINWIDTH / 2)
 HALFWINHEIGHT = int(WINHEIGHT / 2)
 
 
-# farby este sa budu pridavat
+# Colors
 BGCOLOR = (20, 255, 0)
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 BLACK = (0, 0, 0)
 GREEN = (0, 255, 0)
 
-CAMERASLACK = 180     # kolko sa musi hrac pohnut aby sa pohla kamera
-MOVERATE = 25     # rychlost pohybu hraca   
+CAMERASLACK = 180     # how much hero needs to move to move the camera
+MOVERATE = 25     # speed of the player   
 BOUNCERATE = 6      
 BOUNCEHEIGHT = 30    
 STARTLEVEL = 1
 STARTHEALTH = 5
 WINLEVEL = 300   
-NOHITTIME = 2      # sekundy kym je hrac nezranitelny
+NOHITTIME = 2      # invicible time
 MAXHEALTH = 100  
 
 NUMSENEMY = 30
 ENEMYMINSPEED = 3
 ENEMYMAXSPEED = 7
-DIRCHANGEFREQ = 2 # direction change frequency - ako casto sa enemy pohybuju nahodne do novej strany
+DIRCHANGEFREQ = 2 # direction change frequency - ako casto sa enemy pohybuju nahodne do novej strany ??div110: netusim co to je
 ENEMYHEALTH = 1
 
 NUMSOFTREES = 10 
-MAXOFFSCREENPOS = 1000 # maximalna vzdialenost od obrazovky na ktorej sa moze nachadzat objekt
+MAXOFFSCREENPOS = 1000 # max distance (in pixels??) of a object
 
 def main():
     global FPSCLOCK, DISPLAYSURF, BASICFONT
@@ -54,13 +54,13 @@ def main():
     pygame.display.set_caption('2DM')
     BASICFONT = pygame.font.Font('freesansbold.ttf', 32)
 
-    #nacitanie obrazkov hraca ,enemyho a dalsich veciciek
+    #loading pictures
     RHEROIMG = pygame.image.load('graphics/boxer2.png')
     LHEROIMG = pygame.transform.flip(RHEROIMG, True, False)
     ENEMYIMG = pygame.image.load('graphics/policeman.png')
     TREEIMG = pygame.image.load('graphics/tree_v1.png')
 
-    # tu vytvorit nejake texty game over,win atd. aby sme je mohli potom pouzit a zobrazit na obrazovke
+    # game texts, incomplete!!
     game_over_surf, game_over_rect = make_text("GAME OVER", WHITE, BLACK, 0,0)
     game_win_surf, game_win_rect = make_text("YOU HAVE ACHIEVED MAX LEVEL", WHITE, BLACK, 0,0)
 
@@ -82,7 +82,7 @@ def run_game():
     camera_x = 0
     camera_y = 0
 
-    # vytvorim hraca a nastavim mu pociatocne hodnoty
+    # creating a Player Character
     main_character = Hero(RHEROIMG, HALFWINWIDTH, HALFWINHEIGHT, STARTLEVEL, MAXHEALTH)
     
     enemy1 = Enemy(ENEMYIMG,100,100,5,100)
@@ -92,7 +92,7 @@ def run_game():
     moveUp = False
     moveDown = False
 
-    #spravit nejake pozadie pociatocne na obrazovke
+    #spravit nejake pozadie pociatocne na obrazovke 
 
     # tu vytvorim nejake objekty(pozadie nie enemy) ktore sa budu nachadzat po obrazovke a budu sa generovat nahodne 
     trees_objs = []
@@ -130,7 +130,7 @@ def run_game():
 
         # pohnut kamerou ak sa postava pohne mimo nejakej oblasti v strede obrazovky
 
-        # vykreslit pozadie
+        # draw background -- could use a texture?
         DISPLAYSURF.fill(GREEN)
          # vykreslit strom na pozadi
 
@@ -139,20 +139,20 @@ def run_game():
             treeRect.center = (tree.position_x - camera_x, tree.position_y - camera_y)
             DISPLAYSURF.blit(tree.image, treeRect)
 
-        # vykreslit vsetky objetkty na obrazovke
+        # draw all objects
 
-        # vykreslit hraca a jeho zivoty
+        # draw player and other entities
         draw_entity(main_character,camera_x,camera_y)
         main_character.draw_health_bar(DISPLAYSURF)
         
         draw_entity(enemy1, camera_x, camera_y)
         enemy1.move(main_character.position_x,main_character.position_y)
 
-        for event in pygame.event.get(): # event handling cyklus
+        for event in pygame.event.get(): # event handling cycle
             if event.type == QUIT:
                 terminate()
 
-            #nejaky pohyb
+            #handling player movement
             elif event.type == KEYDOWN:
                 if event.key in (K_UP, K_w):
                     moveDown = False
@@ -163,14 +163,14 @@ def run_game():
                 elif event.key in (K_LEFT, K_a):
                     moveRight = False
                     moveLeft = True
-                    #otocim hraca do lava
+                    #flipping the player left
                     if main_character.image == RHEROIMG:
                         main_character.image = LHEROIMG
 
                 elif event.key in (K_RIGHT, K_d):
                     moveLeft = False
                     moveRight = True
-                    #otocim hraca do prava
+                    #flipping the player right
                     if main_character.image == LHEROIMG:
                         main_character.image = RHEROIMG
 
