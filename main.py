@@ -84,6 +84,8 @@ def run_game():
 
     # vytvorim hraca a nastavim mu pociatocne hodnoty
     main_character = Hero(RHEROIMG, HALFWINWIDTH, HALFWINHEIGHT, STARTLEVEL, MAXHEALTH)
+    
+    enemy1 = Enemy(ENEMYIMG,100,100,5,100)
 
     moveLeft = False
     moveRight = False   
@@ -140,8 +142,11 @@ def run_game():
         # vykreslit vsetky objetkty na obrazovke
 
         # vykreslit hraca a jeho zivoty
-        draw_hero(main_character,camera_x,camera_y)
+        draw_entity(main_character,camera_x,camera_y)
         main_character.draw_health_bar(DISPLAYSURF)
+        
+        draw_entity(enemy1, camera_x, camera_y)
+        enemy1.move(main_character.position_x,main_character.position_y)
 
         for event in pygame.event.get(): # event handling cyklus
             if event.type == QUIT:
@@ -217,7 +222,7 @@ def make_text(text, color, bg_color, top, left): # vytvori text na obrazovke
     text_rect.topleft = (top, left)
     return text_surf, text_rect
 
-def draw_hero(hero, camera_x, camera_y): # vykresli hraca na obrazovku
+def draw_entity(hero, camera_x, camera_y): # vykresli hraca na obrazovku
     heroRect = hero.image.get_rect()
     heroRect.center = (hero.position_x - camera_x, hero.position_y - camera_y)
     DISPLAYSURF.blit(hero.image, heroRect)
