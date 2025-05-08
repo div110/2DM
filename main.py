@@ -46,7 +46,7 @@ MAXOFFSCREENPOS = 1000 # max distance (in pixels??) of a object
 
 def main():
     global FPSCLOCK, DISPLAYSURF, BASICFONT
-    global main_character, RHEROIMG, LHEROIMG, ENEMYIMG, TREEIMG
+    global main_character, RHEROIMG, LHEROIMG, LENEMYIMG, RENEMYIMG, TREEIMG
 
     pygame.init()
     FPSCLOCK = pygame.time.Clock()
@@ -57,7 +57,8 @@ def main():
     #loading pictures
     RHEROIMG = pygame.image.load('graphics/boxer2.png')
     LHEROIMG = pygame.transform.flip(RHEROIMG, True, False)
-    ENEMYIMG = pygame.image.load('graphics/policeman.png')
+    LENEMYIMG = pygame.image.load('graphics/policeman.png')
+    RENEMYIMG = pygame.transform.flip(LENEMYIMG,True, False)
     TREEIMG = pygame.image.load('graphics/tree_v1.png')
 
     # game texts, incomplete!!
@@ -85,7 +86,7 @@ def run_game():
     # creating a Player Character
     main_character = Hero(RHEROIMG, HALFWINWIDTH, HALFWINHEIGHT, STARTLEVEL, MAXHEALTH)
     
-    enemy1 = Enemy(ENEMYIMG,100,100,5,100)
+    enemy1 = Enemy(LENEMYIMG,100,100,5,100)
 
     moveLeft = False
     moveRight = False   
