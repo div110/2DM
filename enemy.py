@@ -28,7 +28,7 @@ class Enemy():
         #This does the moving of the enemy
         self.position_x += move_vector[0]
         self.position_y += move_vector[1]
-        print("new position:",self.position_x,self.position_y)
+        #print("new position:",self.position_x,self.position_y)
         
         
 

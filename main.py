@@ -26,7 +26,7 @@ BLACK = (0, 0, 0)
 GREEN = (0, 255, 0)
 
 CAMERASLACK = 180     # how much hero needs to move to move the camera
-MOVERATE = 25     # speed of the player   
+MOVERATE = 10     # speed of the player   
 BOUNCERATE = 6      
 BOUNCEHEIGHT = 30    
 STARTLEVEL = 1
@@ -196,7 +196,7 @@ def run_game():
         moving_camera(main_character)
 
         # test v konzole vypisuje poziciu hraca a kamery
-        print(f"hero pos x {main_character.position_x}, hero pos y {main_character.position_y},camera x {camera_x}, camera y{camera_y}")
+        #print(f"hero pos x {main_character.position_x}, hero pos y {main_character.position_y},camera x {camera_x}, camera y{camera_y}")
 
 
         # pohyb hraca ak je vsetko ok a nie je game over alebo win
