@@ -122,10 +122,10 @@ def run_game():
 
         #sledovat vsetky objekty ci ich netreba zmazat ak su mimo obrazovku
         for (tree) in trees_objs:
-            if tree.is_off_screen( camera_x, camera_y, MAXOFFSCREENPOS, WINWIDTH, WINHEIGHT):
+            if tree.is_off_screen(camera_x, camera_y, MAXOFFSCREENPOS, WINWIDTH, WINHEIGHT):
                 trees_objs.remove(tree)
                 tree = Tree(TREEIMG, 0, 0)
-                tree.get_random_position_off_screen(moveUp, moveDown, moveLeft, moveRight, MAXOFFSCREENPOS, WINWIDTH, WINHEIGHT)
+                tree.get_random_position_off_screen(camera_x, camera_y, MAXOFFSCREENPOS, WINWIDTH, WINHEIGHT)
                 trees_objs.append(tree)
         # pridat dalsie objekty do hry ak treba
 
