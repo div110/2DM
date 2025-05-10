@@ -30,7 +30,7 @@ STARTLEVEL = 1
 STARTHEALTH = 5
 WINLEVEL = 300   
 NOHITTIME = 2      # invicible time
-MAXHEALTH = 100  
+MAXHEALTH = 20  
 
 NUMSENEMY = 30
 ENEMYMINSPEED = 3
@@ -43,7 +43,7 @@ MAXOFFSCREENPOS = 200 # max distance (in pixels??) of a object
 
 def main():
     global FPSCLOCK, DISPLAYSURF, BASICFONT, NUMSOFTREES
-    global main_character, RHEROIMG, LHEROIMG, LENEMYIMG, RENEMYIMG, TREEIMG, treeimgheight, treeimgwidth,grass_tile_size, GRASSIMG
+    global main_character, RHEROIMG, LHEROIMG, LENEMYIMG, RENEMYIMG, TREEIMG, treeimgheight, treeimgwidth,grass_tile_size, GRASSIMG, HEARTIMG, RBLACKHEARTIMG, LBLACKHEARTIMG
 
     pygame.init()
     FPSCLOCK = pygame.time.Clock()
@@ -60,8 +60,13 @@ def main():
     LENEMYIMG = pygame.transform.flip(RENEMYIMG,True, False)
     TREEIMG = pygame.image.load('graphics/tree_v2.png')
     TREEIMG = pygame.transform.scale(TREEIMG, (150,150))
-    GRASSIMG = pygame.image.load('graphics/grass_v1.png')
+    GRASSIMG = pygame.image.load('graphics/grass_v3.png')
     GRASSIMG = pygame.transform.scale(GRASSIMG,(WINWIDTH,WINWIDTH))
+    HEARTIMG = pygame.image.load('graphics/heart.png')
+    HEARTIMG = pygame.transform.scale(HEARTIMG, (20,20))
+    RBLACKHEARTIMG = pygame.image.load('graphics/black_heart_r.png')
+    RBLACKHEARTIMG = pygame.transform.scale(RBLACKHEARTIMG, (20,20))
+    LBLACKHEARTIMG = pygame.transform.flip(RBLACKHEARTIMG, True, False)
     treeimgwidth = TREEIMG.get_width()
     treeimgheight = TREEIMG.get_height()
     grass_tile_size = GRASSIMG.get_width()
@@ -88,8 +93,7 @@ def run_game():
     camera_y = 0
 
     # creating a Player Character
-    main_character = Hero(RHEROIMG, HALFWINWIDTH, HALFWINHEIGHT, STARTLEVEL, MAXHEALTH)
-    
+    main_character = Hero(RHEROIMG, HALFWINWIDTH, HALFWINHEIGHT, STARTLEVEL, MAXHEALTH , HEARTIMG, RBLACKHEARTIMG, LBLACKHEARTIMG)
     enemy1 = Enemy(LENEMYIMG,100,100,5,100)
 
     moveLeft = False
