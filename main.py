@@ -6,9 +6,6 @@ from hero import Hero
 from enemy import Enemy
 from tree import Tree
 
-"""
-POZNAMKOVAL SOM PO SLOVENSKY LEBO SOM TO NARYCHLO ZBUCHAVAL POTOM SA TO MOZE KLUDNE ZMENIT
-"""
 
 
 FPS = 30
@@ -19,11 +16,11 @@ HALFWINHEIGHT = int(WINHEIGHT / 2)
 
 
 # Colors
-BGCOLOR = (20, 255, 0)
+BGCOLOR = (25, 255, 0)
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 BLACK = (0, 0, 0)
-GREEN = (0, 255, 0)
+GREEN = (0, 150, 0)
 
 CAMERASLACK = 180     # how much hero needs to move to move the camera
 MOVERATE = 10     # speed of the player   
@@ -41,12 +38,12 @@ ENEMYMAXSPEED = 7
 DIRCHANGEFREQ = 2 # direction change frequency - ako casto sa enemy pohybuju nahodne do novej strany ??div110: netusim co to je
 ENEMYHEALTH = 1
 
-NUMSOFTREES = 10 
-MAXOFFSCREENPOS = 1000 # max distance (in pixels??) of a object
+NUMSOFTREES = 20 
+MAXOFFSCREENPOS = 200 # max distance (in pixels??) of a object
 
 def main():
-    global FPSCLOCK, DISPLAYSURF, BASICFONT
-    global main_character, RHEROIMG, LHEROIMG, LENEMYIMG, RENEMYIMG, TREEIMG
+    global FPSCLOCK, DISPLAYSURF, BASICFONT, NUMSOFTREES
+    global main_character, RHEROIMG, LHEROIMG, LENEMYIMG, RENEMYIMG, TREEIMG, treeimgheight, treeimgwidth,grass_tile_size, GRASSIMG
 
     pygame.init()
     FPSCLOCK = pygame.time.Clock()
@@ -55,12 +52,19 @@ def main():
     BASICFONT = pygame.font.Font('freesansbold.ttf', 32)
 
     #loading pictures
-    RHEROIMG = pygame.image.load('graphics/boxer2.png')
+    RHEROIMG = pygame.image.load('graphics/hero_v3.png')
+    RHEROIMG = pygame.transform.scale(RHEROIMG,(100, 100))
     LHEROIMG = pygame.transform.flip(RHEROIMG, True, False)
-    LENEMYIMG = pygame.image.load('graphics/policeman.png')
-    RENEMYIMG = pygame.transform.flip(LENEMYIMG,True, False)
-    TREEIMG = pygame.image.load('graphics/tree_v1.png')
-
+    RENEMYIMG = pygame.image.load('graphics/skull_enemy.png')
+    RENEMYIMG = pygame.transform.scale(RENEMYIMG,(130, 100))
+    LENEMYIMG = pygame.transform.flip(RENEMYIMG,True, False)
+    TREEIMG = pygame.image.load('graphics/tree_v2.png')
+    TREEIMG = pygame.transform.scale(TREEIMG, (150,150))
+    GRASSIMG = pygame.image.load('graphics/grass_v1.png')
+    GRASSIMG = pygame.transform.scale(GRASSIMG,(WINWIDTH,WINWIDTH))
+    treeimgwidth = TREEIMG.get_width()
+    treeimgheight = TREEIMG.get_height()
+    grass_tile_size = GRASSIMG.get_width()
     # game texts, incomplete!!
     game_over_surf, game_over_rect = make_text("GAME OVER", WHITE, BLACK, 0,0)
     game_win_surf, game_win_rect = make_text("YOU HAVE ACHIEVED MAX LEVEL", WHITE, BLACK, 0,0)
@@ -70,8 +74,8 @@ def main():
         run_game()
 
 def run_game():
-    # tu sa nastavuju pociatocne hodnoty aby sa vynulovali pri resete hry
-    global FPSCLOCK, DISPLAYSURF, main_character
+    # initial values are set to defaul for easy reset
+    global FPSCLOCK, DISPLAYSURF, main_character, NUMSOFTREES
     global moveDown, moveLeft, moveRight, moveUp, camera_x, camera_y
     global gameOverMode, winMode, immortalityMode, immortalityStartTime
     immortalityMode = False
@@ -93,19 +97,25 @@ def run_game():
     moveUp = False
     moveDown = False
 
-    #spravit nejake pozadie pociatocne na obrazovke 
 
-    # tu vytvorim nejake objekty(pozadie nie enemy) ktore sa budu nachadzat po obrazovke a budu sa generovat nahodne 
+    #draw background
+    start_x = -camera_x % grass_tile_size - grass_tile_size
+    start_y = -camera_y % grass_tile_size - grass_tile_size
+
+    for x in range(start_x, WINWIDTH + grass_tile_size, grass_tile_size):
+        for y in range(start_y, WINHEIGHT + grass_tile_size, grass_tile_size):
+            DISPLAYSURF.blit(GRASSIMG, (x, y))
+    #draw trees
     trees_objs = []
     for i in range(0, NUMSOFTREES):
-            tree = Tree(TREEIMG, 0, 0)
+            tree = Tree(TREEIMG, 0, 0, treeimgwidth, treeimgheight)
             tree.get_random_position(MAXOFFSCREENPOS, WINWIDTH, WINHEIGHT)
             trees_objs.append((tree))
 
 
     #game loop 
     while True:
-        # aktualitizujem pociatocne hodnoty hraca a jeho pohyb
+        # update players values and movement
         if moveLeft:
             main_character.position_x -= MOVERATE
         if moveRight:
@@ -114,32 +124,42 @@ def run_game():
             main_character.position_y -= MOVERATE
         if moveDown:
             main_character.position_y += MOVERATE
-        # zistujem ci ma hrac este pociatocnu nesmrtelnost
+        # checking for invicible mode
         if immortalityMode and time.time() - immortalityStartTime > NOHITTIME:
             immortalityMode = False
 
-        # pohyb vsetkych enemych
+        # movement of all enemies
 
-        #sledovat vsetky objekty ci ich netreba zmazat ak su mimo obrazovku
+        # checking for deleting objects if they are outside of screen area
         for (tree) in trees_objs:
             if tree.is_off_screen(camera_x, camera_y, MAXOFFSCREENPOS, WINWIDTH, WINHEIGHT):
+                #print("tree removed at", tree.position_x, tree.position_y)
                 trees_objs.remove(tree)
-                tree = Tree(TREEIMG, 0, 0)
-                tree.get_random_position_off_screen(camera_x, camera_y, MAXOFFSCREENPOS, WINWIDTH, WINHEIGHT)
-                trees_objs.append(tree)
-        # pridat dalsie objekty do hry ak treba
 
-        # pohnut kamerou ak sa postava pohne mimo nejakej oblasti v strede obrazovky
+        while len(trees_objs) < NUMSOFTREES:
+            #print()
+            t = generate_new_tree()
+            trees_objs.append(t)
+        #print(len(trees_objs))
+        # adding more objects
 
-        # draw background -- could use a texture?
-        DISPLAYSURF.fill(GREEN)
-         # vykreslit strom na pozadi
 
+        # draw background
+
+        start_x = -camera_x % grass_tile_size - grass_tile_size
+        start_y = -camera_y % grass_tile_size - grass_tile_size
+
+        for x in range(start_x, WINWIDTH + grass_tile_size, grass_tile_size):
+            for y in range(start_y, WINHEIGHT + grass_tile_size, grass_tile_size):
+                DISPLAYSURF.blit(GRASSIMG, (x, y))
+
+        # draw trees
         for tree in trees_objs:
             treeRect = tree.image.get_rect()
             treeRect.center = (tree.position_x - camera_x, tree.position_y - camera_y)
+            #print("tree pos x", tree.position_x, "tree pos y", tree.position_y)
+            
             DISPLAYSURF.blit(tree.image, treeRect)
-
         # draw all objects
 
         # draw player and other entities
@@ -175,7 +195,7 @@ def run_game():
                     if main_character.image == LHEROIMG:
                         main_character.image = RHEROIMG
 
-            #zastavim pohyb hraca ak sa uvolni klavesa
+            # stop players movement if keyup
             elif event.type == KEYUP:
                 if event.key in (K_LEFT, K_a):
                     moveLeft = False
@@ -190,12 +210,14 @@ def run_game():
                     terminate()
 
 
-        # pohyb hraca
+        # players movement
         moving_hero(main_character, moveLeft, moveRight, moveUp, moveDown) 
-        # pohyb kamery ak sa hrac pohnul mimo obrazovky
+        #print("hero pos x", main_character.position_x, "hero pos y", main_character.position_y)
+        # camera movement
         moving_camera(main_character)
+        #print(f"camera slack cords x {camera_x} y {camera_y}")
 
-        # test v konzole vypisuje poziciu hraca a kamery
+        # test for player and camera cors
         #print(f"hero pos x {main_character.position_x}, hero pos y {main_character.position_y},camera x {camera_x}, camera y{camera_y}")
 
 
@@ -213,22 +235,22 @@ def run_game():
         FPSCLOCK.tick(FPS)
     
 
-def terminate(): # ukonci program
+def terminate(): # end game
     pygame.quit()
     sys.exit()
 
-def make_text(text, color, bg_color, top, left): # vytvori text na obrazovke
+def make_text(text, color, bg_color, top, left): # make text on screen
     text_surf = BASICFONT.render(text, True, color, bg_color)
     text_rect = text_surf.get_rect()
     text_rect.topleft = (top, left)
     return text_surf, text_rect
 
-def draw_entity(hero, camera_x, camera_y): # vykresli hraca na obrazovku
+def draw_entity(hero, camera_x, camera_y): # draw player on screen
     heroRect = hero.image.get_rect()
     heroRect.center = (hero.position_x - camera_x, hero.position_y - camera_y)
     DISPLAYSURF.blit(hero.image, heroRect)
 
-def moving_hero(hero, moveLeft, moveRight, moveUp, moveDown): # posuva hraca ak sa pohne
+def moving_hero(hero, moveLeft, moveRight, moveUp, moveDown): # move player
     global camera_x, camera_y
     if moveLeft and hero.position_x > CAMERASLACK:
         hero.position_x -= MOVERATE
@@ -247,7 +269,7 @@ def moving_hero(hero, moveLeft, moveRight, moveUp, moveDown): # posuva hraca ak 
     if hero.position_y > camera_y + WINHEIGHT - CAMERASLACK:
         camera_y += MOVERATE
 
-def moving_camera(hero): # posuvam kameru ak sa hrac pohnul mimo obrazovky
+def moving_camera(hero): # check for camera movement if needed
     global camera_x, camera_y
     if hero.position_x < camera_x + CAMERASLACK:
         camera_x -= MOVERATE
@@ -258,6 +280,13 @@ def moving_camera(hero): # posuvam kameru ak sa hrac pohnul mimo obrazovky
     if hero.position_y > camera_y + WINHEIGHT - CAMERASLACK:
         camera_y += MOVERATE
 
+def generate_new_tree():
+    t = Tree(TREEIMG, 0, 0 , treeimgwidth, treeimgheight)
+    x,y = t.get_random_position_off_screen(moveUp, moveDown,moveLeft, moveRight,MAXOFFSCREENPOS, WINWIDTH, WINHEIGHT)
+    t.position_x = camera_x + x
+    t.position_y = camera_y + y
+    #print(f"added tree {t.position_x} {t.position_y}")
+    return t
 
 if __name__ == '__main__':
     main()

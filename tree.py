@@ -3,11 +3,12 @@ import pygame
 
 
 class Tree():
-    def __init__(self, image, position_x, position_y):
+    def __init__(self, image, position_x, position_y, treeimgwidth, treeimgheight):
         self.position_x : int = position_x
         self.position_y : int = position_y
         self.image : str = image
-        
+        self.width = treeimgwidth
+        self.height = treeimgheight
 
         # treba toto este doladit aby sa to generovalo rovnomerne a neboli hluche miesta ked sa hybem s kamerou
 
@@ -16,7 +17,42 @@ class Tree():
         self.position_y = random.randint(-MAXOFFSCREENPOS, WINHEIGHT+MAXOFFSCREENPOS)
         
     def get_random_position_off_screen(self, moveUp, moveDown, moveLeft, moveRight, MAXOFFSCREENPOS, WINWIDTH, WINHEIGHT):
-        if moveUp:
+        if moveUp and moveRight:
+            r_choice = random.choice([True, False])
+            if r_choice:
+                x = random.randint(0, WINWIDTH + MAXOFFSCREENPOS)
+                y = random.randint(-MAXOFFSCREENPOS, -50) 
+            else:
+                x = random.randint(WINWIDTH, WINWIDTH + MAXOFFSCREENPOS)
+                y = random.randint(-MAXOFFSCREENPOS, WINHEIGHT)
+
+        elif moveUp and moveLeft:
+            r_choice = random.choice([True, False])
+            if r_choice:
+                x = random.randint(-MAXOFFSCREENPOS, WINWIDTH)
+                y = random.randint(-MAXOFFSCREENPOS, -50)
+            else:
+                x = random.randint(-MAXOFFSCREENPOS, -50)
+                y = random.randint(-MAXOFFSCREENPOS, WINHEIGHT)
+
+        elif moveDown and moveRight:
+            r_choice = random.choice([True, False])
+            if r_choice:
+                x = random.randint(0, WINWIDTH + MAXOFFSCREENPOS)
+                y = random.randint(WINHEIGHT + 50, WINHEIGHT + MAXOFFSCREENPOS)
+            else:
+                x = random.randint(WINWIDTH, WINWIDTH + MAXOFFSCREENPOS)
+                y = random.randint(0, WINHEIGHT + MAXOFFSCREENPOS)
+
+        elif moveDown and moveLeft:
+            r_choice = random.choice([True, False])
+            if r_choice:
+                x = random.randint(-MAXOFFSCREENPOS, WINWIDTH)
+                y = random.randint(WINHEIGHT + 50, WINHEIGHT + MAXOFFSCREENPOS)
+            else:
+                x = random.randint(-MAXOFFSCREENPOS, -50)
+                y = random.randint(0, WINHEIGHT + MAXOFFSCREENPOS)
+        elif moveUp:
             x = random.randint(0,WINWIDTH) 
             y = random.randint(-MAXOFFSCREENPOS, -50)
         elif moveDown:
@@ -27,16 +63,19 @@ class Tree():
             y = random.randint(0,WINHEIGHT) 
         elif moveRight:
             x =random.randint(WINWIDTH+50, WINWIDTH + MAXOFFSCREENPOS)
-            y = random.randint(0,WINWIDTH)
+            y = random.randint(0,WINHEIGHT)
         else:
             x = random.randint(-MAXOFFSCREENPOS, -50) if random.choice([True, False]) else random.randint(WINWIDTH+50, WINWIDTH + MAXOFFSCREENPOS)
             y = random.randint(-MAXOFFSCREENPOS, -50) if random.choice([True, False]) else random.randint(WINHEIGHT+50, WINHEIGHT + MAXOFFSCREENPOS)
-        self.position_x = x
-        self.position_y = y
+        return x, y
         
     
     def is_off_screen(self, camera_x, camera_y, MAXOFFSCREENPOS, WINWIDTH, WINHEIGHT):
         pos_X = self.position_x
         pos_Y = self.position_y
-        maxoff = MAXOFFSCREENPOS
-        return pos_X+ WINWIDTH+maxoff <camera_x  or pos_Y + WINHEIGHT + maxoff < camera_y or pos_X - WINWIDTH - maxoff > camera_x  or pos_Y - WINHEIGHT - maxoff > camera_y 
+        left = camera_x  - MAXOFFSCREENPOS
+        top = camera_y  - MAXOFFSCREENPOS
+        active_areaRect = pygame.Rect(left, top, WINWIDTH + 2*MAXOFFSCREENPOS, WINHEIGHT + 2*MAXOFFSCREENPOS)
+        treeRect = pygame.Rect(pos_X, pos_Y, self.width, self.height)
+        return not active_areaRect.colliderect(treeRect)
+    
