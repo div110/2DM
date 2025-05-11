@@ -29,10 +29,10 @@ BOUNCEHEIGHT = 30
 STARTLEVEL = 1
 STARTHEALTH = 5
 WINLEVEL = 300   
-NOHITTIME = 2      # invicible time
+NOHITTIME = 0.15    # invicible time
 MAXHEALTH = 20  
 
-NUMSENEMY = 30
+NUMSENEMY = 10
 ENEMYMINSPEED = 3
 ENEMYMAXSPEED = 7
 DIRCHANGEFREQ = 2 # direction change frequency - ako casto sa enemy pohybuju nahodne do novej strany ??div110: netusim co to je
@@ -93,7 +93,7 @@ def main():
 
 def run_game():
     # initial values are set to defaul for easy reset
-    global FPSCLOCK, DISPLAYSURF, main_character, NUMSOFTREES
+    global FPSCLOCK, DISPLAYSURF, main_character, NUMSOFTREES, NUMSENEMY
     global moveDown, moveLeft, moveRight, moveUp, camera_x, camera_y, attackKey
     global gameOverMode, winMode, immortalityMode, immortalityStartTime, trees_objs, enemy1, enemy1_objs
     immortalityMode = False
@@ -107,16 +107,19 @@ def run_game():
     enemy1_objs = []
     # creating a Player Character
     main_character = Hero(RHEROIMG, HALFWINWIDTH, HALFWINHEIGHT, STARTLEVEL, MAXHEALTH , HEARTIMG, RBLACKHEARTIMG, LBLACKHEARTIMG)
-    enemy1 = Enemy(LENEMYIMG,RENEMYIMG,100,100,5,20)
-    enemy1_objs.append(enemy1)
-    enemy2 = Enemy(LENEMYIMG,RENEMYIMG,300,300,5,20)
-    enemy1_objs.append(enemy2)
+    
+
     moveLeft = False
-    moveRight = False   
+    moveRight = False  
     moveUp = False
     moveDown = False
     attackKey = False
 
+    # creating enemies
+    for enemy1 in range(NUMSENEMY):
+        enemy1= Enemy(LENEMYIMG,RENEMYIMG,0,0,5,20)
+        enemy1.get_random_position_off_screen(moveUp, moveDown, moveLeft, moveRight, MAXOFFSCREENPOS, WINWIDTH, WINHEIGHT)
+        enemy1_objs.append(enemy1)
     #draw background
     start_x = -camera_x % grass_tile_size - grass_tile_size
     start_y = -camera_y % grass_tile_size - grass_tile_size
@@ -159,6 +162,14 @@ def run_game():
             #print()
             t = generate_new_tree()
             trees_objs.append(t)
+
+        while len(enemy1_objs) < NUMSENEMY:
+            #print()
+            enemy1= Enemy(LENEMYIMG,RENEMYIMG,0+camera_x,0+camera_y,5,20)
+            enemy1.get_random_position_off_screen(moveUp, moveDown, moveLeft, moveRight, MAXOFFSCREENPOS, WINWIDTH, WINHEIGHT)
+            enemy1.position_x += camera_x
+            enemy1.position_y += camera_y
+            enemy1_objs.append(enemy1)
         #print(len(trees_objs))
         # adding more objects
 
@@ -224,7 +235,6 @@ def run_game():
                 elif event.key == K_ESCAPE:
                     terminate()
 
-        print(attackKey)
 
         
         # players movement
@@ -241,6 +251,11 @@ def run_game():
         # pohyb hraca ak je vsetko ok a nie je game over alebo win
 
         # sledujem ci nenastala kolizia s enemy alebo inym objektom
+        check_for_damage()
+                
+                
+            
+
         # ak nastala kolizia tak zoberem zivot hracovi a nastavim mu cas kedy je nezranitelny alebo hrac znici enemyho zalezi
         # od ich levelu alebo niecoho ineho
 
@@ -337,19 +352,7 @@ def hero_attack(hero):
         DISPLAYSURF.blit(RSWORDPARTICLES, particlesRect)
         pygame.display.update()
         hero.image = RHEROIMG
-
-        particles_width = RSWORDPARTICLES.get_width()
-        particles_height = RSWORDPARTICLES.get_height()
-        particlesRect = pygame.Rect(hero.position_x +30 -camera_x - particles_width//2,hero.position_y-camera_y-particles_height//2, particles_width, particles_height)
-        for (enemy1) in enemy1_objs:
-            enemy_width = enemy1.image.get_width()
-            enemy_height = enemy1.image.get_height()
-            enemyRect = pygame.Rect(enemy1.position_x-camera_x - enemy_width//2, enemy1.position_y-camera_y-enemy_height//2, enemy_width, enemy_height)
-            if particlesRect.colliderect(enemyRect):
-                enemy1.current_health -= 1
-                print(enemy1.current_health)
-                if enemy1.current_health == 0:
-                    enemy1_objs.remove(enemy1)
+        check_for_attack_collision(hero, RSWORDPARTICLES, +30)
                 
 
     if hero.image == LHEROIMG:
@@ -375,19 +378,23 @@ def hero_attack(hero):
         DISPLAYSURF.blit(LSWORDPARTICLES, particlesRect)
         pygame.display.update()
         hero.image = LHEROIMG
+        check_for_attack_collision(hero, LSWORDPARTICLES, -30)
 
-        particles_width = RSWORDPARTICLES.get_width()
-        particles_height = RSWORDPARTICLES.get_height()
-        particlesRect = pygame.Rect(hero.position_x +30 -camera_x - particles_width//2,hero.position_y-camera_y-particles_height//2, particles_width, particles_height)
-        for (enemy1) in enemy1_objs:
-            enemy_width = enemy1.image.get_width()
-            enemy_height = enemy1.image.get_height()
-            enemyRect = pygame.Rect(enemy1.position_x-camera_x - enemy_width//2, enemy1.position_y-camera_y-enemy_height//2, enemy_width, enemy_height)
-            if particlesRect.colliderect(enemyRect):
-                enemy1.current_health -= 1
-                print(enemy1.current_health)
-                if enemy1.current_health == 0:
-                    enemy1_objs.remove(enemy1)
+        
+    pass
+
+def check_for_attack_collision(hero, SWORDPARTICLES, z_value):
+    particles_width = SWORDPARTICLES.get_width()
+    particles_height = SWORDPARTICLES.get_height()
+    particlesRect = pygame.Rect(hero.position_x + z_value -camera_x - particles_width//2,hero.position_y-camera_y-particles_height//2, particles_width, particles_height)
+    for (enemy1) in enemy1_objs:
+        enemyRect = enemy1.get_enemy_rect(camera_x,camera_y)
+        if particlesRect.colliderect(enemyRect):
+            enemy1.current_health -= 1
+            if enemy1.current_health == 0:
+                enemy1_objs.remove(enemy1)
+                if hero.current_health < hero.max_health:
+                    hero.current_health += 1
     pass
 
 def draw_background():
@@ -405,6 +412,19 @@ def draw_trees(trees_objs):
         treeRect.center = (tree.position_x - camera_x, tree.position_y - camera_y)
         DISPLAYSURF.blit(tree.image, treeRect)
     pass
+
+def check_for_damage():
+    global immortalityStartTime, immortalityMode
+    if immortalityMode == True:
+        return
+    heroRect = main_character.get_hero_hitbox(camera_x, camera_y)
+    for (enemy1) in enemy1_objs:
+        enemyRect = enemy1.get_enemy_attackbox(camera_x,camera_y)
+        if heroRect.colliderect(enemyRect):
+            main_character.current_health -= 1
+            immortalityStartTime = time.time()
+            immortalityMode = True
+            return
 
 if __name__ == '__main__':
     main()

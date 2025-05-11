@@ -29,3 +29,12 @@ class Hero():
                 DISPLAYSURF.blit(self.bheart_l_image,(0 + i*10, 10))
         return
 
+    def get_hero_rect(self,camera_x,camera_y):
+        hero_width = self.image.get_width()
+        hero_height = self.image.get_height()
+        heroRect = pygame.Rect(self.position_x-camera_x - hero_width//2, self.position_y-camera_y-hero_height//2, hero_width, hero_height)
+        return heroRect
+    
+    def get_hero_hitbox(self, camera_x, camera_y):
+        heroRect = pygame.Rect(self.position_x-camera_x-2 , self.position_y-camera_y-2, 4, 4)
+        return heroRect
