@@ -104,4 +104,22 @@ class Enemy():
     def get_enemy_attackbox(self,camera_x,camera_y):
         enemyRect = pygame.Rect(self.position_x-camera_x - 1, self.position_y-camera_y - 1, 2, 2)
         return enemyRect
-    
+        
+    def is_hit(self, player_x, player_y):
+
+        self.current_health -= 1
+
+        enemy_player_vector = [(self.position_x - player_x),(self.position_y - player_y)]
+
+        if enemy_player_vector[0] < 0:
+            enemy_player_vector[0] = -150
+        else:
+            enemy_player_vector[0] = 150
+
+        if enemy_player_vector[1] < 0:
+            enemy_player_vector[1] = -150
+        else:
+            enemy_player_vector[1] = 150
+        
+        self.position_x += enemy_player_vector[0]
+        self.position_y += enemy_player_vector[1]

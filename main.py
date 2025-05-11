@@ -390,7 +390,7 @@ def check_for_attack_collision(hero, SWORDPARTICLES, z_value):
     for (enemy1) in enemy1_objs:
         enemyRect = enemy1.get_enemy_rect(camera_x,camera_y)
         if particlesRect.colliderect(enemyRect):
-            enemy1.current_health -= 1
+            enemy1.is_hit(main_character.position_x,main_character.position_y)
             if enemy1.current_health == 0:
                 enemy1_objs.remove(enemy1)
                 if hero.current_health < hero.max_health:
