@@ -64,9 +64,9 @@ def main():
     R3HEROIMG = pygame.transform.scale(R3HEROIMG,(100, 100))
     L3HEROIMG = pygame.transform.flip(R3HEROIMG, True, False)
 
-    RENEMYIMG = pygame.image.load('graphics/skull_enemy.png')
-    RENEMYIMG = pygame.transform.scale(RENEMYIMG,(130, 100))
-    LENEMYIMG = pygame.transform.flip(RENEMYIMG,True, False)
+    LENEMYIMG = pygame.image.load('graphics/skull_enemy.png')
+    LENEMYIMG = pygame.transform.scale(LENEMYIMG,(130, 100))
+    RENEMYIMG = pygame.transform.flip(LENEMYIMG,True, False)
     TREEIMG = pygame.image.load('graphics/tree_v2.png')
     TREEIMG = pygame.transform.scale(TREEIMG, (150,150))
 
