@@ -55,19 +55,9 @@ def main():
     RHEROIMG = pygame.image.load('graphics/hero_v3.png')
     RHEROIMG = pygame.transform.scale(RHEROIMG,(100, 100))
     LHEROIMG = pygame.transform.flip(RHEROIMG, True, False)
-
-    R2HEROIMG = pygame.image.load('graphics/sword_up_hero.png')
-    R2HEROIMG = pygame.transform.scale(R2HEROIMG,(100, 100))
-    L2HEROIMG = pygame.transform.flip(R2HEROIMG, True, False)
-
-    R3HEROIMG = pygame.image.load('graphics/sword_down_hero.png')
-    R3HEROIMG = pygame.transform.scale(R3HEROIMG,(100, 100))
-    L3HEROIMG = pygame.transform.flip(R3HEROIMG, True, False)
-
-    LENEMYIMG = pygame.image.load('graphics/skull_enemy.png')
-    LENEMYIMG = pygame.transform.scale(LENEMYIMG,(130, 100))
-    RENEMYIMG = pygame.transform.flip(LENEMYIMG,True, False)
-
+    RENEMYIMG = pygame.image.load('graphics/skull_enemy.png')
+    RENEMYIMG = pygame.transform.scale(RENEMYIMG,(130, 100))
+    LENEMYIMG = pygame.transform.flip(RENEMYIMG,True, False)
     TREEIMG = pygame.image.load('graphics/tree_v2.png')
     TREEIMG = pygame.transform.scale(TREEIMG, (150,150))
 
