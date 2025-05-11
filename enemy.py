@@ -1,11 +1,13 @@
 class Enemy():
-    def __init__(self, image, position_x, position_y, difficulty, max_health):
+    def __init__(self, left_image, right_image,position_x, position_y, difficulty, max_health):
         self.position_x : int = position_x
         self.position_y : int = position_y
         self.difficulty : int = difficulty 
         self.current_health : int = max_health
         self.max_health : int = max_health
-        self.image : str = image
+        self.image : str = left_image 
+        self.left_image = left_image
+        self.right_image = right_image
     
     
     def move(self, player_x, player_y):
@@ -28,12 +30,14 @@ class Enemy():
         #This does the moving of the enemy
         self.position_x += move_vector[0]
         self.position_y += move_vector[1]
-        #print("new position:",self.position_x,self.position_y)
-        
-        
+       
+        #switch image
+        if move_vector[0] > 0:
+            self.image = self.right_image
+        else:
+            self.image = self.left_image
 
         pass
-
 
 
 

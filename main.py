@@ -44,7 +44,7 @@ MAXOFFSCREENPOS = 200 # max distance (in pixels??) of a object
 def main():
     global FPSCLOCK, DISPLAYSURF, BASICFONT, NUMSOFTREES
     global main_character, RHEROIMG, LHEROIMG, LENEMYIMG, RENEMYIMG, TREEIMG, treeimgheight, treeimgwidth,grass_tile_size, GRASSIMG, HEARTIMG, RBLACKHEARTIMG, LBLACKHEARTIMG
-
+    global RSWORDPARTICLES, LSWORDPARTICLES, R2HEROIMG,L2HEROIMG, R3HEROIMG, L3HEROIMG
     pygame.init()
     FPSCLOCK = pygame.time.Clock()
     DISPLAYSURF = pygame.display.set_mode((WINWIDTH, WINHEIGHT))
@@ -55,11 +55,22 @@ def main():
     RHEROIMG = pygame.image.load('graphics/hero_v3.png')
     RHEROIMG = pygame.transform.scale(RHEROIMG,(100, 100))
     LHEROIMG = pygame.transform.flip(RHEROIMG, True, False)
-    RENEMYIMG = pygame.image.load('graphics/skull_enemy.png')
-    RENEMYIMG = pygame.transform.scale(RENEMYIMG,(130, 100))
-    LENEMYIMG = pygame.transform.flip(RENEMYIMG,True, False)
+
+    R2HEROIMG = pygame.image.load('graphics/sword_up_hero.png')
+    R2HEROIMG = pygame.transform.scale(R2HEROIMG,(100, 100))
+    L2HEROIMG = pygame.transform.flip(R2HEROIMG, True, False)
+
+    R3HEROIMG = pygame.image.load('graphics/sword_down_hero.png')
+    R3HEROIMG = pygame.transform.scale(R3HEROIMG,(100, 100))
+    L3HEROIMG = pygame.transform.flip(R3HEROIMG, True, False)
+
+    LENEMYIMG = pygame.image.load('graphics/skull_enemy.png')
+    LENEMYIMG = pygame.transform.scale(LENEMYIMG,(130, 100))
+    RENEMYIMG = pygame.transform.flip(LENEMYIMG,True, False)
+
     TREEIMG = pygame.image.load('graphics/tree_v2.png')
     TREEIMG = pygame.transform.scale(TREEIMG, (150,150))
+
     GRASSIMG = pygame.image.load('graphics/grass_v3.png')
     GRASSIMG = pygame.transform.scale(GRASSIMG,(WINWIDTH,WINWIDTH))
     HEARTIMG = pygame.image.load('graphics/heart.png')
@@ -67,6 +78,9 @@ def main():
     RBLACKHEARTIMG = pygame.image.load('graphics/black_heart_r.png')
     RBLACKHEARTIMG = pygame.transform.scale(RBLACKHEARTIMG, (20,20))
     LBLACKHEARTIMG = pygame.transform.flip(RBLACKHEARTIMG, True, False)
+    RSWORDPARTICLES = pygame.image.load('graphics/sword_particles.png')
+    RSWORDPARTICLES = pygame.transform.scale(RSWORDPARTICLES, (120,180) )
+    LSWORDPARTICLES = pygame.transform.flip(RSWORDPARTICLES, True, False)
     treeimgwidth = TREEIMG.get_width()
     treeimgheight = TREEIMG.get_height()
     grass_tile_size = GRASSIMG.get_width()
@@ -81,8 +95,8 @@ def main():
 def run_game():
     # initial values are set to defaul for easy reset
     global FPSCLOCK, DISPLAYSURF, main_character, NUMSOFTREES
-    global moveDown, moveLeft, moveRight, moveUp, camera_x, camera_y
-    global gameOverMode, winMode, immortalityMode, immortalityStartTime
+    global moveDown, moveLeft, moveRight, moveUp, camera_x, camera_y, attackKey
+    global gameOverMode, winMode, immortalityMode, immortalityStartTime, trees_objs, enemy1, enemy1_objs
     immortalityMode = False
     immortalityStartTime = 0
     gameOverMode = False        
@@ -91,16 +105,18 @@ def run_game():
 
     camera_x = 0
     camera_y = 0
-
+    enemy1_objs = []
     # creating a Player Character
     main_character = Hero(RHEROIMG, HALFWINWIDTH, HALFWINHEIGHT, STARTLEVEL, MAXHEALTH , HEARTIMG, RBLACKHEARTIMG, LBLACKHEARTIMG)
-    enemy1 = Enemy(LENEMYIMG,100,100,5,100)
-
+    enemy1 = Enemy(LENEMYIMG,RENEMYIMG,100,100,5,20)
+    enemy1_objs.append(enemy1)
+    enemy2 = Enemy(LENEMYIMG,RENEMYIMG,300,300,5,20)
+    enemy1_objs.append(enemy2)
     moveLeft = False
     moveRight = False   
     moveUp = False
     moveDown = False
-
+    attackKey = False
 
     #draw background
     start_x = -camera_x % grass_tile_size - grass_tile_size
@@ -150,28 +166,22 @@ def run_game():
 
         # draw background
 
-        start_x = -camera_x % grass_tile_size - grass_tile_size
-        start_y = -camera_y % grass_tile_size - grass_tile_size
-
-        for x in range(start_x, WINWIDTH + grass_tile_size, grass_tile_size):
-            for y in range(start_y, WINHEIGHT + grass_tile_size, grass_tile_size):
-                DISPLAYSURF.blit(GRASSIMG, (x, y))
+        draw_background()
 
         # draw trees
-        for tree in trees_objs:
-            treeRect = tree.image.get_rect()
-            treeRect.center = (tree.position_x - camera_x, tree.position_y - camera_y)
+        
             #print("tree pos x", tree.position_x, "tree pos y", tree.position_y)
-            
-            DISPLAYSURF.blit(tree.image, treeRect)
+        draw_trees(trees_objs)
+           
         # draw all objects
 
         # draw player and other entities
-        draw_entity(main_character,camera_x,camera_y)
+        draw_hero(main_character,camera_x,camera_y,attackKey)
         main_character.draw_health_bar(DISPLAYSURF)
-        
-        draw_entity(enemy1, camera_x, camera_y)
-        enemy1.move(main_character.position_x,main_character.position_y)
+
+        for (enemy1) in enemy1_objs:
+            draw_entity(enemy1, camera_x, camera_y)
+            enemy1.move(main_character.position_x,main_character.position_y)
 
         for event in pygame.event.get(): # event handling cycle
             if event.type == QUIT:
@@ -191,13 +201,14 @@ def run_game():
                     #flipping the player left
                     if main_character.image == RHEROIMG:
                         main_character.image = LHEROIMG
-
                 elif event.key in (K_RIGHT, K_d):
                     moveLeft = False
                     moveRight = True
                     #flipping the player right
                     if main_character.image == LHEROIMG:
                         main_character.image = RHEROIMG
+                elif event.key == K_q:
+                    attackKey = True
 
             # stop players movement if keyup
             elif event.type == KEYUP:
@@ -209,11 +220,14 @@ def run_game():
                     moveUp = False
                 elif event.key in (K_DOWN, K_s):
                     moveDown = False
-
+                elif event.key == K_q:
+                    attackKey = False
                 elif event.key == K_ESCAPE:
                     terminate()
 
+        print(attackKey)
 
+        
         # players movement
         moving_hero(main_character, moveLeft, moveRight, moveUp, moveDown) 
         #print("hero pos x", main_character.position_x, "hero pos y", main_character.position_y)
@@ -254,6 +268,14 @@ def draw_entity(hero, camera_x, camera_y): # draw player on screen
     heroRect.center = (hero.position_x - camera_x, hero.position_y - camera_y)
     DISPLAYSURF.blit(hero.image, heroRect)
 
+def draw_hero(hero, camera_x, camera_y,attackKey): # draw player on screen
+    heroRect = hero.image.get_rect()
+    heroRect.center = (hero.position_x - camera_x, hero.position_y - camera_y)
+    DISPLAYSURF.blit(hero.image, heroRect)
+    if attackKey == True:
+            hero_attack(main_character)
+
+
 def moving_hero(hero, moveLeft, moveRight, moveUp, moveDown): # move player
     global camera_x, camera_y
     if moveLeft and hero.position_x > CAMERASLACK:
@@ -292,6 +314,99 @@ def generate_new_tree():
     #print(f"added tree {t.position_x} {t.position_y}")
     return t
 
+def hero_attack(hero):
+    if hero.image == RHEROIMG:
+        hero.image = R2HEROIMG
+        draw_background()
+        draw_trees(trees_objs)
+        for (enemy1) in enemy1_objs:
+            draw_entity(enemy1, camera_x, camera_y)
+        hero.draw_health_bar(DISPLAYSURF)
+        draw_entity(hero,camera_x-10,camera_y)
+        pygame.display.update()
+        pygame.time.wait(5)
+        particlesRect = RSWORDPARTICLES.get_rect()
+        particlesRect.center = (hero.position_x+30 - camera_x, hero.position_y - camera_y)
+        DISPLAYSURF.blit(RSWORDPARTICLES, particlesRect)
+        pygame.display.update()
+        hero.image = R3HEROIMG
+        draw_background()
+        draw_trees(trees_objs)
+        for (enemy1) in enemy1_objs:
+            draw_entity(enemy1, camera_x, camera_y)
+        draw_entity(hero,camera_x-10,camera_y)
+        DISPLAYSURF.blit(RSWORDPARTICLES, particlesRect)
+        pygame.display.update()
+        hero.image = RHEROIMG
+
+        particles_width = RSWORDPARTICLES.get_width()
+        particles_height = RSWORDPARTICLES.get_height()
+        particlesRect = pygame.Rect(hero.position_x +30 -camera_x - particles_width//2,hero.position_y-camera_y-particles_height//2, particles_width, particles_height)
+        for (enemy1) in enemy1_objs:
+            enemy_width = enemy1.image.get_width()
+            enemy_height = enemy1.image.get_height()
+            enemyRect = pygame.Rect(enemy1.position_x-camera_x - enemy_width//2, enemy1.position_y-camera_y-enemy_height//2, enemy_width, enemy_height)
+            if particlesRect.colliderect(enemyRect):
+                enemy1.current_health -= 1
+                print(enemy1.current_health)
+                if enemy1.current_health == 0:
+                    enemy1_objs.remove(enemy1)
+                
+
+    if hero.image == LHEROIMG:
+        hero.image = L2HEROIMG
+        draw_background()
+        draw_trees(trees_objs)
+        for (enemy1) in enemy1_objs:
+            draw_entity(enemy1, camera_x, camera_y)
+        hero.draw_health_bar(DISPLAYSURF)
+        draw_entity(hero,camera_x-10,camera_y)
+        pygame.display.update()
+        pygame.time.wait(5)
+        particlesRect = LSWORDPARTICLES.get_rect()
+        particlesRect.center = (hero.position_x-30 - camera_x, hero.position_y - camera_y)
+        DISPLAYSURF.blit(LSWORDPARTICLES, particlesRect)
+        pygame.display.update()
+        hero.image = L3HEROIMG
+        draw_background()
+        draw_trees(trees_objs)
+        for (enemy1) in enemy1_objs:
+            draw_entity(enemy1, camera_x, camera_y)
+        draw_entity(hero,camera_x-10,camera_y)
+        DISPLAYSURF.blit(LSWORDPARTICLES, particlesRect)
+        pygame.display.update()
+        hero.image = LHEROIMG
+
+        particles_width = RSWORDPARTICLES.get_width()
+        particles_height = RSWORDPARTICLES.get_height()
+        particlesRect = pygame.Rect(hero.position_x +30 -camera_x - particles_width//2,hero.position_y-camera_y-particles_height//2, particles_width, particles_height)
+        for (enemy1) in enemy1_objs:
+            enemy_width = enemy1.image.get_width()
+            enemy_height = enemy1.image.get_height()
+            enemyRect = pygame.Rect(enemy1.position_x-camera_x - enemy_width//2, enemy1.position_y-camera_y-enemy_height//2, enemy_width, enemy_height)
+            if particlesRect.colliderect(enemyRect):
+                enemy1.current_health -= 1
+                print(enemy1.current_health)
+                if enemy1.current_health == 0:
+                    enemy1_objs.remove(enemy1)
+    pass
+
+def draw_background():
+    start_x = -camera_x % grass_tile_size - grass_tile_size
+    start_y = -camera_y % grass_tile_size - grass_tile_size
+
+    for x in range(start_x, WINWIDTH + grass_tile_size, grass_tile_size):
+        for y in range(start_y, WINHEIGHT + grass_tile_size, grass_tile_size):
+            DISPLAYSURF.blit(GRASSIMG, (x, y))
+    pass
+
+def draw_trees(trees_objs):
+    for tree in trees_objs:
+        treeRect = tree.image.get_rect()
+        treeRect.center = (tree.position_x - camera_x, tree.position_y - camera_y)
+        DISPLAYSURF.blit(tree.image, treeRect)
+    pass
+
 if __name__ == '__main__':
     main()
 
@@ -303,7 +418,7 @@ vykreslit nejaky health bar - DONE -> hero.draw_health_bar()
 ziskat nejaku nahodnu rychlost enemy
 tvorba noveho enemy
 tvorba nejakeho novehu objektu (nejaky item ktory sa da ziskat koliziuou a ziskam z neho nieco)
-nejaky vypocet toho bounnce pohybu hraca/enemy - NE->pohyby vyresime na Discordu
+nejaky vypocet toho bounnce pohybu hraca/enemy - NE->pohyby vyresime na DiscorduRSWORDPARTICLES
 
 
 Pridal jsem textury - graphics, jsou jen prozatim
