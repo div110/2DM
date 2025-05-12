@@ -21,6 +21,7 @@ WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 BLACK = (0, 0, 0)
 GREEN = (0, 150, 0)
+DARKGREEN = (0,75,0)
 
 CAMERASLACK = 180     # how much hero needs to move to move the camera
 MOVERATE = 10     # speed of the player   
@@ -43,7 +44,7 @@ NUMSOFTREES = 20
 MAXOFFSCREENPOS = 200 # max distance (in pixels??) of a object
 
 def main():
-    global FPSCLOCK, DISPLAYSURF, BASICFONT, NUMSOFTREES
+    global FPSCLOCK, DISPLAYSURF, BASICFONT, BASICFONTLARGE, NUMSOFTREES
     global main_character, RHEROIMG, LHEROIMG, LENEMYIMG, RENEMYIMG, TREEIMG, treeimgheight, treeimgwidth,grass_tile_size, GRASSIMG, HEARTIMG, RBLACKHEARTIMG, LBLACKHEARTIMG
     global RSWORDPARTICLES, LSWORDPARTICLES, R2HEROIMG,L2HEROIMG, R3HEROIMG, L3HEROIMG, LGOBLINMAGEIMG, RGOBLINMAGEIMG
     pygame.init()
@@ -51,6 +52,7 @@ def main():
     DISPLAYSURF = pygame.display.set_mode((WINWIDTH, WINHEIGHT))
     pygame.display.set_caption('2DM')
     BASICFONT = pygame.font.Font('freesansbold.ttf', 32)
+    BASICFONTLARGE = pygame.font.Font('freesansbold.ttf', 128)
 
     #loading pictures
     RHEROIMG = pygame.image.load('graphics/hero_v3.png')
@@ -294,7 +296,7 @@ def terminate(): # end game
     pygame.quit()
     sys.exit()
 
-def make_text(text, color, bg_color, top, left): # make text on screen
+def make_text(text, color, bg_color, top, left): # make text on screen  pozn. div110: jakoze proc toto?
     text_surf = BASICFONT.render(text, True, color, bg_color)
     text_rect = text_surf.get_rect()
     text_rect.topleft = (top, left)
@@ -425,6 +427,7 @@ def check_for_attack_collision(hero, SWORDPARTICLES, z_value, enemy_obj):
         if particlesRect.colliderect(enemyRect):
             enemy.is_hit(main_character.position_x,main_character.position_y)
             if enemy.current_health == 0:
+                hero.level += 1
                 enemy_obj.remove(enemy)
                 if hero.current_health < hero.max_health:
                     hero.current_health += 1
@@ -455,9 +458,55 @@ def check_for_damage():
         enemyRect = enemy1.get_enemy_attackbox(camera_x,camera_y)
         if heroRect.colliderect(enemyRect):
             main_character.current_health -= 1
+            if main_character.is_alive() == False:
+               game_over() 
+            
             immortalityStartTime = time.time()
             immortalityMode = True
             return
+
+def game_over():
+    main_character.position_x = 175
+    main_character.position_y = 275
+    DISPLAYSURF.fill(BLACK)
+    text_surface = BASICFONTLARGE.render("Game Over",False,WHITE)
+    level_surface = BASICFONT.render(f"Level achieved: {main_character.level}", False, WHITE)
+    DISPLAYSURF.blit(text_surface,(125,50))
+    DISPLAYSURF.blit(level_surface,(240,255))
+    draw_hero(main_character,0,0,False)
+    try_again_button(100, 500,WHITE,DARKGREEN)
+
+    while True:
+        pygame.display.update()  
+        for event in pygame.event.get():
+            if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
+                terminate()
+            if event.type == MOUSEMOTION:
+                mouse_x = pygame.mouse.get_pos()[0]
+                mouse_y = pygame.mouse.get_pos()[1]
+                
+
+                if (100 < mouse_x < 262) and (500 < mouse_y < 542):
+                    try_again_button(100, 500,DARKGREEN,WHITE)
+                else:
+                    try_again_button(100, 500, WHITE,DARKGREEN)
+            
+            if event.type == MOUSEBUTTONUP:
+                mouse_x = pygame.mouse.get_pos()[0]
+                mouse_y = pygame.mouse.get_pos()[1]
+                if (100 < mouse_x < 262) and (500 < mouse_y < 542):
+                    run_game() # not sure of the recursion 
+                    return
+
+
+    #game_over_surf, game_over_rect = make_text("GAME OVER", WHITE, BLACK, 0,0)
+    #game_win_surf, game_win_rect = make_text("YOU HAVE ACHIEVED MAX LEVEL", WHITE, BLACK, 0,0)
+    
+def try_again_button(position_x, position_y, COLOR, BACKGROUND):
+    try_again_surface = BASICFONT.render("Try Again",False, COLOR)
+    pygame.draw.rect(DISPLAYSURF,BACKGROUND, (position_x, position_y, 162,42))
+    DISPLAYSURF.blit(try_again_surface,(105,505))
+
 
 if __name__ == '__main__':
     main()
@@ -473,5 +522,4 @@ tvorba nejakeho novehu objektu (nejaky item ktory sa da ziskat koliziuou a ziska
 nejaky vypocet toho bounnce pohybu hraca/enemy - NE->pohyby vyresime na DiscorduRSWORDPARTICLES
 
 
-Pridal jsem textury - graphics, jsou jen prozatim
 """
