@@ -10,7 +10,10 @@ class Goblin_Mage():
         self.image : str = left_image 
         self.left_image = left_image
         self.right_image = right_image
-    
+        self.spawn_time = pygame.time.get_ticks()
+        self.spawn_small_goblin_time = 7000
+        self.small_goblin_objs = []
+
     
     def move(self, player_x, player_y):
         """Moves the enemy in the direction of the player
@@ -113,8 +116,8 @@ class Goblin_Mage():
         difficulty = 10
         for i in range(4):
             small_goblin = Small_Goblin( left_image, right_image,position_x[i], position_y[i], difficulty, max_health)
-            small_goblin_objs.append(small_goblin)
-        return small_goblin_objs
+            self.small_goblin_objs.append(small_goblin)
+        
 
 
         pass
@@ -123,4 +126,8 @@ class Goblin_Mage():
 
         self.current_health -= 1
 
+    def update(self):
+        current_time = pygame.time.get_ticks()
+        if current_time - self.spawn_time > self.spawn_small_goblin_time:
+            self.spawn_small_goblins
         
