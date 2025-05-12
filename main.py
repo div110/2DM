@@ -20,6 +20,7 @@ HALFWINHEIGHT = int(WINHEIGHT / 2)
 BGCOLOR = (25, 255, 0)
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
+DARKRED = (75,0,0)
 BLACK = (0, 0, 0)
 GREEN = (0, 150, 0)
 DARKGREEN = (0,75,0)
@@ -475,7 +476,9 @@ def game_over():
     DISPLAYSURF.blit(text_surface,(125,50))
     DISPLAYSURF.blit(level_surface,(240,255))
     draw_hero(main_character,0,0,False)
-    button("Try Again", 100, 500,WHITE,DARKGREEN)
+
+    button("Try Again", 100, 550,WHITE,DARKGREEN)
+    button("Quit", 2*HALFWINWIDTH-300,550,WHITE,DARKRED)
 
     try:
         get_qr(f"Hero level: {main_character.level}") # More info in the future (max wave, max hps, etc...)
@@ -494,17 +497,22 @@ def game_over():
                 mouse_y = pygame.mouse.get_pos()[1]
                 
 
-                if (100 < mouse_x < 262) and (500 < mouse_y < 542):
-                    button("Try Again", 100, 500,DARKGREEN,WHITE)
+                if (100 < mouse_x < 262) and (550 < mouse_y < 592):
+                    button("Try Again", 100, 550,DARKGREEN,WHITE)
                 else:
-                    button("Try Again", 100, 500, WHITE,DARKGREEN)
+                    button("Try Again", 100, 550, WHITE,DARKGREEN)
+
+                if (2*HALFWINWIDTH-300 < mouse_x < 2*HALFWINWIDTH+138) and (550 < mouse_y < 592):
+                    button("Quit", 2*HALFWINWIDTH-300,550,DARKRED,WHITE)
+                else:
+                    button("Quit", 2*HALFWINWIDTH-300,550,WHITE,DARKRED)
 
             #                if ()
             
             if event.type == MOUSEBUTTONUP:
                 mouse_x = pygame.mouse.get_pos()[0]
                 mouse_y = pygame.mouse.get_pos()[1]
-                if (100 < mouse_x < 262) and (500 < mouse_y < 542):
+                if (100 < mouse_x < 262) and (550 < mouse_y < 592):
                     run_game() # not sure of the recursion 
                     return
 
