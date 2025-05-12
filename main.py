@@ -5,7 +5,7 @@ from pygame.locals import *
 from hero import Hero
 from enemy import Enemy
 from tree import Tree
-
+from goblin_mage import Goblin_Mage
 
 
 FPS = 30
@@ -33,6 +33,7 @@ NOHITTIME = 0.15    # invicible time
 MAXHEALTH = 20  
 
 NUMSENEMY = 10
+NUMSGOBLINMAGE = 2
 ENEMYMINSPEED = 3
 ENEMYMAXSPEED = 7
 DIRCHANGEFREQ = 2 # direction change frequency - ako casto sa enemy pohybuju nahodne do novej strany ??div110: netusim co to je
@@ -44,7 +45,7 @@ MAXOFFSCREENPOS = 200 # max distance (in pixels??) of a object
 def main():
     global FPSCLOCK, DISPLAYSURF, BASICFONT, NUMSOFTREES
     global main_character, RHEROIMG, LHEROIMG, LENEMYIMG, RENEMYIMG, TREEIMG, treeimgheight, treeimgwidth,grass_tile_size, GRASSIMG, HEARTIMG, RBLACKHEARTIMG, LBLACKHEARTIMG
-    global RSWORDPARTICLES, LSWORDPARTICLES, R2HEROIMG,L2HEROIMG, R3HEROIMG, L3HEROIMG
+    global RSWORDPARTICLES, LSWORDPARTICLES, R2HEROIMG,L2HEROIMG, R3HEROIMG, L3HEROIMG, LGOBLINMAGEIMG, RGOBLINMAGEIMG
     pygame.init()
     FPSCLOCK = pygame.time.Clock()
     DISPLAYSURF = pygame.display.set_mode((WINWIDTH, WINHEIGHT))
@@ -67,6 +68,11 @@ def main():
     LENEMYIMG = pygame.image.load('graphics/skull_enemy.png')
     LENEMYIMG = pygame.transform.scale(LENEMYIMG,(130, 100))
     RENEMYIMG = pygame.transform.flip(LENEMYIMG,True, False)
+
+    LGOBLINMAGEIMG = pygame.image.load('graphics/goblin_mage.png')
+    LGOBLINMAGEIMG = pygame.transform.scale(LGOBLINMAGEIMG,(80, 120))
+    RGOBLINMAGEIMG = pygame.transform.flip(LGOBLINMAGEIMG,True, False)
+
     TREEIMG = pygame.image.load('graphics/tree_v2.png')
     TREEIMG = pygame.transform.scale(TREEIMG, (150,150))
 
@@ -95,7 +101,7 @@ def run_game():
     # initial values are set to defaul for easy reset
     global FPSCLOCK, DISPLAYSURF, main_character, NUMSOFTREES, NUMSENEMY
     global moveDown, moveLeft, moveRight, moveUp, camera_x, camera_y, attackKey
-    global gameOverMode, winMode, immortalityMode, immortalityStartTime, trees_objs, enemy1, enemy1_objs
+    global gameOverMode, winMode, immortalityMode, immortalityStartTime, trees_objs, enemy1, enemy1_objs, goblinmage1_objs
     immortalityMode = False
     immortalityStartTime = 0
     gameOverMode = False        
@@ -105,6 +111,7 @@ def run_game():
     camera_x = 0
     camera_y = 0
     enemy1_objs = []
+    goblinmage1_objs = []
     # creating a Player Character
     main_character = Hero(RHEROIMG, HALFWINWIDTH, HALFWINHEIGHT, STARTLEVEL, MAXHEALTH , HEARTIMG, RBLACKHEARTIMG, LBLACKHEARTIMG)
     
@@ -120,6 +127,10 @@ def run_game():
         enemy1= Enemy(LENEMYIMG,RENEMYIMG,0,0,5,20)
         enemy1.get_random_position_off_screen(moveUp, moveDown, moveLeft, moveRight, MAXOFFSCREENPOS, WINWIDTH, WINHEIGHT)
         enemy1_objs.append(enemy1)
+    for goblinmage1 in range(NUMSGOBLINMAGE):
+        goblinmage1= Goblin_Mage(LGOBLINMAGEIMG,RGOBLINMAGEIMG,0,0,3,20)
+        goblinmage1.get_random_position_off_screen(moveUp, moveDown, moveLeft, moveRight, MAXOFFSCREENPOS, WINWIDTH, WINHEIGHT)
+        goblinmage1_objs.append(goblinmage1)
     #draw background
     start_x = -camera_x % grass_tile_size - grass_tile_size
     start_y = -camera_y % grass_tile_size - grass_tile_size
@@ -170,6 +181,14 @@ def run_game():
             enemy1.position_x += camera_x
             enemy1.position_y += camera_y
             enemy1_objs.append(enemy1)
+
+        while len(goblinmage1_objs) < NUMSGOBLINMAGE:
+            #print()
+            goblinmage1= Goblin_Mage(LGOBLINMAGEIMG,RGOBLINMAGEIMG,0,0,3,20)
+            goblinmage1.get_random_position_off_screen(moveUp, moveDown, moveLeft, moveRight, MAXOFFSCREENPOS, WINWIDTH, WINHEIGHT)
+            goblinmage1.position_x += camera_x
+            goblinmage1.position_y += camera_y
+            goblinmage1_objs.append(goblinmage1)
         #print(len(trees_objs))
         # adding more objects
 
@@ -192,6 +211,10 @@ def run_game():
         for (enemy1) in enemy1_objs:
             draw_entity(enemy1, camera_x, camera_y)
             enemy1.move(main_character.position_x,main_character.position_y)
+
+        for (goblinmage1) in goblinmage1_objs:
+            draw_entity(goblinmage1, camera_x, camera_y)
+            goblinmage1.move(main_character.position_x,main_character.position_y)
 
         for event in pygame.event.get(): # event handling cycle
             if event.type == QUIT:
@@ -335,6 +358,8 @@ def hero_attack(hero):
         draw_trees(trees_objs)
         for (enemy1) in enemy1_objs:
             draw_entity(enemy1, camera_x, camera_y)
+        for (goblinmage1) in goblinmage1_objs:
+            draw_entity(goblinmage1, camera_x, camera_y)
         hero.draw_health_bar(DISPLAYSURF)
         draw_entity(hero,camera_x-10,camera_y)
         pygame.display.update()
@@ -348,11 +373,14 @@ def hero_attack(hero):
         draw_trees(trees_objs)
         for (enemy1) in enemy1_objs:
             draw_entity(enemy1, camera_x, camera_y)
+        for (goblinmage1) in goblinmage1_objs:
+            draw_entity(goblinmage1, camera_x, camera_y)
         draw_entity(hero,camera_x-10,camera_y)
         DISPLAYSURF.blit(RSWORDPARTICLES, particlesRect)
         pygame.display.update()
         hero.image = RHEROIMG
-        check_for_attack_collision(hero, RSWORDPARTICLES, +30)
+        check_for_attack_collision(hero, RSWORDPARTICLES, +30, enemy1_objs)
+        check_for_attack_collision(hero, RSWORDPARTICLES, +30, goblinmage1_objs)
                 
 
     if hero.image == LHEROIMG:
@@ -361,6 +389,8 @@ def hero_attack(hero):
         draw_trees(trees_objs)
         for (enemy1) in enemy1_objs:
             draw_entity(enemy1, camera_x, camera_y)
+        for (goblinmage1) in goblinmage1_objs:
+            draw_entity(goblinmage1, camera_x, camera_y)
         hero.draw_health_bar(DISPLAYSURF)
         draw_entity(hero,camera_x-10,camera_y)
         pygame.display.update()
@@ -374,25 +404,28 @@ def hero_attack(hero):
         draw_trees(trees_objs)
         for (enemy1) in enemy1_objs:
             draw_entity(enemy1, camera_x, camera_y)
+        for (goblinmage1) in goblinmage1_objs:
+            draw_entity(goblinmage1, camera_x, camera_y)
         draw_entity(hero,camera_x-10,camera_y)
         DISPLAYSURF.blit(LSWORDPARTICLES, particlesRect)
         pygame.display.update()
         hero.image = LHEROIMG
-        check_for_attack_collision(hero, LSWORDPARTICLES, -30)
+        check_for_attack_collision(hero, LSWORDPARTICLES, -30, enemy1_objs)
+        check_for_attack_collision(hero, LSWORDPARTICLES, -30, goblinmage1_objs)
 
         
     pass
 
-def check_for_attack_collision(hero, SWORDPARTICLES, z_value):
+def check_for_attack_collision(hero, SWORDPARTICLES, z_value, enemy_obj):
     particles_width = SWORDPARTICLES.get_width()
     particles_height = SWORDPARTICLES.get_height()
     particlesRect = pygame.Rect(hero.position_x + z_value -camera_x - particles_width//2,hero.position_y-camera_y-particles_height//2, particles_width, particles_height)
-    for (enemy1) in enemy1_objs:
-        enemyRect = enemy1.get_enemy_rect(camera_x,camera_y)
+    for (enemy) in enemy_obj:
+        enemyRect = enemy.get_enemy_rect(camera_x,camera_y)
         if particlesRect.colliderect(enemyRect):
-            enemy1.is_hit(main_character.position_x,main_character.position_y)
-            if enemy1.current_health == 0:
-                enemy1_objs.remove(enemy1)
+            enemy.is_hit(main_character.position_x,main_character.position_y)
+            if enemy.current_health == 0:
+                enemy_obj.remove(enemy)
                 if hero.current_health < hero.max_health:
                     hero.current_health += 1
     pass
