@@ -2,6 +2,7 @@ import random, sys, time, math, pygame
 from pygame.locals import *
 
 
+from last_score.qr import get_qr
 from hero import Hero
 from enemy import Enemy
 from tree import Tree
@@ -474,8 +475,15 @@ def game_over():
     DISPLAYSURF.blit(text_surface,(125,50))
     DISPLAYSURF.blit(level_surface,(240,255))
     draw_hero(main_character,0,0,False)
-    try_again_button(100, 500,WHITE,DARKGREEN)
+    button("Try Again", 100, 500,WHITE,DARKGREEN)
 
+    try:
+        get_qr(f"Hero level: {main_character.level}") # More info in the future (max wave, max hps, etc...)
+        QRIMAGE = pygame.image.load('last_score/qr.png')
+        DISPLAYSURF.blit(QRIMAGE,(575,175)) 
+    except:
+        pass
+    
     while True:
         pygame.display.update()  
         for event in pygame.event.get():
@@ -487,9 +495,11 @@ def game_over():
                 
 
                 if (100 < mouse_x < 262) and (500 < mouse_y < 542):
-                    try_again_button(100, 500,DARKGREEN,WHITE)
+                    button("Try Again", 100, 500,DARKGREEN,WHITE)
                 else:
-                    try_again_button(100, 500, WHITE,DARKGREEN)
+                    button("Try Again", 100, 500, WHITE,DARKGREEN)
+
+            #                if ()
             
             if event.type == MOUSEBUTTONUP:
                 mouse_x = pygame.mouse.get_pos()[0]
@@ -502,10 +512,10 @@ def game_over():
     #game_over_surf, game_over_rect = make_text("GAME OVER", WHITE, BLACK, 0,0)
     #game_win_surf, game_win_rect = make_text("YOU HAVE ACHIEVED MAX LEVEL", WHITE, BLACK, 0,0)
     
-def try_again_button(position_x, position_y, COLOR, BACKGROUND):
-    try_again_surface = BASICFONT.render("Try Again",False, COLOR)
+def button(text, position_x, position_y, COLOR, BACKGROUND):
+    try_again_surface = BASICFONT.render(text,False, COLOR)
     pygame.draw.rect(DISPLAYSURF,BACKGROUND, (position_x, position_y, 162,42))
-    DISPLAYSURF.blit(try_again_surface,(105,505))
+    DISPLAYSURF.blit(try_again_surface,(position_x + 5, position_y + 5))
 
 
 if __name__ == '__main__':
