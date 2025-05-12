@@ -515,6 +515,8 @@ def game_over():
                 if (100 < mouse_x < 262) and (550 < mouse_y < 592):
                     run_game() # not sure of the recursion 
                     return
+                elif (2*HALFWINWIDTH-300 < mouse_x < 2*HALFWINWIDTH+138) and (550 < mouse_y < 592):
+                    terminate()
 
 
     #game_over_surf, game_over_rect = make_text("GAME OVER", WHITE, BLACK, 0,0)
