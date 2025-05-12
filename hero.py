@@ -13,7 +13,7 @@ class Hero():
         self.bheart_l_image : str = bheart_l_image
     
     def is_alive(self):
-        if self.health_points <= 0:
+        if self.current_health <= 0:
             return False
         else:
             return True
