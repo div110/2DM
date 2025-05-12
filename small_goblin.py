@@ -1,6 +1,6 @@
 import random, pygame
 
-class Goblin_Mage():
+class Small_Goblin():
     def __init__(self, left_image, right_image,position_x, position_y, difficulty, max_health):
         self.position_x : int = position_x
         self.position_y : int = position_y
@@ -16,7 +16,7 @@ class Goblin_Mage():
         """Moves the enemy in the direction of the player
             The difficulty solution is NOT Final
         """
-              
+            
         #Gets direction to the player
         move_vector = [(player_x - self.position_x),(player_y - self.position_y)]
         #print(move_vector)
@@ -105,22 +105,21 @@ class Goblin_Mage():
         enemyRect = pygame.Rect(self.position_x-camera_x - 1, self.position_y-camera_y - 1, 2, 2)
         return enemyRect
         
-    def spawn_small_goblins(self, Small_Goblin, left_image, right_image):
-        small_goblin_objs = []
-        position_x = [self.position_x - 10, self.position_x, self.position_x +10, self.position_x]
-        position_y = [self.position_y, self.position_y+10, self.position_y, self.position_y -10]
-        max_health = 8
-        difficulty = 10
-        for i in range(4):
-            small_goblin = Small_Goblin( left_image, right_image,position_x[i], position_y[i], difficulty, max_health)
-            small_goblin_objs.append(small_goblin)
-        return small_goblin_objs
-
-
-        pass
-
     def is_hit(self, player_x, player_y):
 
         self.current_health -= 1
 
+        enemy_player_vector = [(self.position_x - player_x),(self.position_y - player_y)]
+
+        if enemy_player_vector[0] < 0:
+            enemy_player_vector[0] = -50
+        else:
+            enemy_player_vector[0] = 50
+
+        if enemy_player_vector[1] < 0:
+            enemy_player_vector[1] = -50
+        else:
+            enemy_player_vector[1] = 50
         
+        self.position_x += enemy_player_vector[0]
+        self.position_y += enemy_player_vector[1]
