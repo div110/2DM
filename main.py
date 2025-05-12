@@ -125,7 +125,7 @@ def run_game():
     moveUp = False
     moveDown = False
     attackKey = False
-
+    
     # creating enemies
     for enemy1 in range(NUMSENEMY):
         enemy1= Enemy(LENEMYIMG,RENEMYIMG,0,0,5,20)
