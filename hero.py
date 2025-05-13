@@ -1,7 +1,8 @@
 import pygame
 
 class Hero():
-    def __init__(self,image, position_x, position_y, level, max_health, heart_image,bheart_r_image,bheart_l_image, image_mage, limage_mage, l_image):
+    def __init__(self,image, position_x, position_y, level, max_health, heart_image,bheart_r_image,bheart_l_image, image_mage, limage_mage, l_image, fire_shot_class,
+                  rfire_shot_img, lfire_shot_img):
         self.position_x : int = position_x
         self.position_y : int = position_y
         self.current_health : int = max_health
@@ -17,6 +18,10 @@ class Hero():
         self.bheart_l_image : str = bheart_l_image
         self.weapon_mode = "sword"
         self.direction = "right"
+        self.fire_shots_objs = None
+        self.fire_shot_class = fire_shot_class
+        self.rfire_shotimg = rfire_shot_img
+        self.lfire_shotimg = lfire_shot_img
     
     def is_alive(self):
         if self.current_health <= 0:
@@ -60,4 +65,17 @@ class Hero():
             elif self.direction == "left":
                 self.image = self.limage_sword
                 self.weapon_mode = "sword"
+        pass
+
+    def generate_fire_shot(self):
+        if self.direction == "right":
+            fsimage = self.rfire_shotimg
+            xpos = self.position_x +60
+        elif self.direction == "left":
+            xpos = self.position_x -60
+            fsimage = self.lfire_shotimg
+        ypos = self.position_y
+        return self.fire_shot_class(fsimage, xpos, ypos, 12, self.direction)
+         
+
         pass

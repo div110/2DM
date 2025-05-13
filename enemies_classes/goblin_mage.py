@@ -123,8 +123,8 @@ class Goblin_Mage():
             self.small_goblin_objs.append(small_goblin)
         pass
 
-    def is_hit(self, player_x, player_y):
-        self.current_health -= 1
+    def is_hit(self, player_x, player_y, damage):
+        self.current_health -= damage
         pass
 
     def update(self): # matches time with main and check if its time for spawn
