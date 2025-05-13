@@ -411,6 +411,8 @@ def hero_attack(hero):
             draw_entity(enemy1, camera_x, camera_y)
         for (goblinmage1) in goblinmage1_objs:
             draw_entity(goblinmage1, camera_x, camera_y)
+        for (smallgoblin1) in smallgoblin1_objs:
+            draw_entity(smallgoblin1, camera_x, camera_y)
         hero.draw_health_bar(DISPLAYSURF)
         draw_entity(hero,camera_x-10,camera_y)
         pygame.display.update()
@@ -426,6 +428,8 @@ def hero_attack(hero):
             draw_entity(enemy1, camera_x, camera_y)
         for (goblinmage1) in goblinmage1_objs:
             draw_entity(goblinmage1, camera_x, camera_y)
+        for (smallgoblin1) in smallgoblin1_objs:
+            draw_entity(smallgoblin1, camera_x, camera_y)
         draw_entity(hero,camera_x-10,camera_y)
         DISPLAYSURF.blit(LSWORDPARTICLES, particlesRect)
         pygame.display.update()
@@ -544,9 +548,6 @@ def game_over():
                 elif (2*HALFWINWIDTH-300 < mouse_x < 2*HALFWINWIDTH+138) and (550 < mouse_y < 592):
                     terminate()
 
-
-    #game_over_surf, game_over_rect = make_text("GAME OVER", WHITE, BLACK, 0,0)
-    #game_win_surf, game_win_rect = make_text("YOU HAVE ACHIEVED MAX LEVEL", WHITE, BLACK, 0,0)
     
 def button(text, position_x, position_y, COLOR, BACKGROUND):
     try_again_surface = BASICFONT.render(text,False, COLOR)

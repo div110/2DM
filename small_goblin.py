@@ -10,6 +10,7 @@ class Small_Goblin():
         self.image : str = left_image 
         self.left_image = left_image
         self.right_image = right_image
+        self.knockback = 25
     
     
     def move(self, player_x, player_y):
@@ -112,14 +113,14 @@ class Small_Goblin():
         enemy_player_vector = [(self.position_x - player_x),(self.position_y - player_y)]
 
         if enemy_player_vector[0] < 0:
-            enemy_player_vector[0] = -50
+            enemy_player_vector[0] = -self.knockback
         else:
-            enemy_player_vector[0] = 50
+            enemy_player_vector[0] = self.knockback
 
         if enemy_player_vector[1] < 0:
-            enemy_player_vector[1] = -50
+            enemy_player_vector[1] = -self.knockback
         else:
-            enemy_player_vector[1] = 50
+            enemy_player_vector[1] = self.knockback
         
         self.position_x += enemy_player_vector[0]
         self.position_y += enemy_player_vector[1]

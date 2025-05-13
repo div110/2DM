@@ -10,6 +10,7 @@ class Enemy():
         self.image : str = left_image 
         self.left_image = left_image
         self.right_image = right_image
+        self.knockback = 150
     
     
     def move(self, player_x, player_y):
@@ -109,13 +110,13 @@ class Enemy():
         self.current_health -= 1
         enemy_player_vector = [(self.position_x - player_x),(self.position_y - player_y)]
         if enemy_player_vector[0] < 0:
-            enemy_player_vector[0] = -150
+            enemy_player_vector[0] = -self.knockback
         else:
-            enemy_player_vector[0] = 150
+            enemy_player_vector[0] = self.knockback
 
         if enemy_player_vector[1] < 0:
-            enemy_player_vector[1] = -150
+            enemy_player_vector[1] = -self.knockback
         else:
-            enemy_player_vector[1] = 150    
+            enemy_player_vector[1] = self.knockback    
         self.position_x += enemy_player_vector[0]
         self.position_y += enemy_player_vector[1]
