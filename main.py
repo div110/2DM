@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 import random, sys, time, math, pygame
 from pygame.locals import *
 
@@ -8,6 +10,7 @@ from enemy import Enemy
 from tree import Tree
 from goblin_mage import Goblin_Mage
 from small_goblin import Small_Goblin
+from wolf import Wolf
 
 FPS = 30
 WINWIDTH = 4* 240
@@ -49,6 +52,7 @@ def main():
     global FPSCLOCK, DISPLAYSURF, BASICFONT, BASICFONTLARGE, NUMSOFTREES
     global main_character, RHEROIMG, LHEROIMG, LENEMYIMG, RENEMYIMG, TREEIMG, treeimgheight, treeimgwidth,grass_tile_size, GRASSIMG, HEARTIMG, RBLACKHEARTIMG, LBLACKHEARTIMG
     global RSWORDPARTICLES, LSWORDPARTICLES, R2HEROIMG,L2HEROIMG, R3HEROIMG, L3HEROIMG, LGOBLINMAGEIMG, RGOBLINMAGEIMG, LSMALLGOBLINIMG, RSMALLGOBLINIMG
+    global RWOLF, LWOLF
     pygame.init()
     FPSCLOCK = pygame.time.Clock()
     DISPLAYSURF = pygame.display.set_mode((WINWIDTH, WINHEIGHT))
@@ -82,6 +86,11 @@ def main():
     LSMALLGOBLINIMG = pygame.image.load('graphics/small_goblin_v2.png')
     LSMALLGOBLINIMG = pygame.transform.scale(LSMALLGOBLINIMG,(80, 80))
     RSMALLGOBLINIMG = pygame.transform.flip(LSMALLGOBLINIMG,True, False)
+    
+    RWOLF = pygame.image.load('graphics/wolf.png')
+    RWOLF = pygame.transform.scale(RWOLF,(100,100))
+    LWOLF = pygame.transform.flip(RWOLF,True,False)
+
 
     #objs imgs
     TREEIMG = pygame.image.load('graphics/tree_v2.png')
@@ -141,6 +150,16 @@ def run_game():
         goblinmage1= Goblin_Mage(LGOBLINMAGEIMG,RGOBLINMAGEIMG,0,0,3,20, Small_Goblin, LSMALLGOBLINIMG, RSMALLGOBLINIMG)
         goblinmage1.get_random_position_off_screen(moveUp, moveDown, moveLeft, moveRight, MAXOFFSCREENPOS, WINWIDTH, WINHEIGHT)
         goblinmage1_objs.append(goblinmage1)
+
+
+
+    #Adding wolf
+
+    #wolf = Wolf(LWOLF, RWOLF, 0, 0, 1, 5)
+    #wolf.get_random_position_off_screen(moveUp, moveDown, moveLeft, moveRight, MAXOFFSCREENPOS, WINWIDTH, WINHEIGHT)
+
+
+
 
     #draw background
     start_x = -camera_x % grass_tile_size - grass_tile_size
@@ -205,8 +224,6 @@ def run_game():
         # adding more objects
 
 
-
-
         # draw background
 
         draw_background()
@@ -226,6 +243,9 @@ def run_game():
             draw_entity(enemy1, camera_x, camera_y)
             enemy1.move(main_character.position_x,main_character.position_y)
 
+        #draw_entity(wolf, camera_x, camera_y)
+        #wolf.move(main_character.position_x, main_character.position_y)
+        
         for (goblinmage1) in goblinmage1_objs:
             draw_entity(goblinmage1, camera_x, camera_y)
             goblinmage1.move(main_character.position_x,main_character.position_y)
