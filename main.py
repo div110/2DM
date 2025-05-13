@@ -6,11 +6,11 @@ from pygame.locals import *
 
 from last_score.qr import get_qr
 from hero import Hero
-from enemy import Enemy
-from tree import Tree
-from goblin_mage import Goblin_Mage
-from small_goblin import Small_Goblin
-from wolf import Wolf
+from enemies_classes.enemy import Enemy
+from objects_classes.tree import Tree
+from enemies_classes.goblin_mage import Goblin_Mage
+from enemies_classes.small_goblin import Small_Goblin
+from enemies_classes.wolf import Wolf
 
 FPS = 30
 WINWIDTH = 4* 240
@@ -52,7 +52,7 @@ def main():
     global FPSCLOCK, DISPLAYSURF, BASICFONT, BASICFONTLARGE, NUMSOFTREES
     global main_character, RHEROIMG, LHEROIMG, LENEMYIMG, RENEMYIMG, TREEIMG, treeimgheight, treeimgwidth,grass_tile_size, GRASSIMG, HEARTIMG, RBLACKHEARTIMG, LBLACKHEARTIMG
     global RSWORDPARTICLES, LSWORDPARTICLES, R2HEROIMG,L2HEROIMG, R3HEROIMG, L3HEROIMG, LGOBLINMAGEIMG, RGOBLINMAGEIMG, LSMALLGOBLINIMG, RSMALLGOBLINIMG
-    global RWOLF, LWOLF
+    global RWOLF, LWOLF, RHEROMAGEIMG, LHEROMAGEIMG
     pygame.init()
     FPSCLOCK = pygame.time.Clock()
     DISPLAYSURF = pygame.display.set_mode((WINWIDTH, WINHEIGHT))
@@ -62,49 +62,53 @@ def main():
 
     #loading pictures
     # hero imgs
-    RHEROIMG = pygame.image.load('graphics/hero_v3.png')
+    RHEROIMG = pygame.image.load('graphics/hero_img/hero_v3.png')
     RHEROIMG = pygame.transform.scale(RHEROIMG,(100, 100))
     LHEROIMG = pygame.transform.flip(RHEROIMG, True, False)
 
-    R2HEROIMG = pygame.image.load('graphics/sword_up_hero.png')
+    R2HEROIMG = pygame.image.load('graphics/hero_img/sword_up_hero.png')
     R2HEROIMG = pygame.transform.scale(R2HEROIMG,(100, 100))
     L2HEROIMG = pygame.transform.flip(R2HEROIMG, True, False)
 
-    R3HEROIMG = pygame.image.load('graphics/sword_down_hero.png')
+    R3HEROIMG = pygame.image.load('graphics/hero_img/sword_down_hero.png')
     R3HEROIMG = pygame.transform.scale(R3HEROIMG,(100, 100))
     L3HEROIMG = pygame.transform.flip(R3HEROIMG, True, False)
 
+    RHEROMAGEIMG = pygame.image.load('graphics/hero_img/hero_mage.png')
+    RHEROMAGEIMG = pygame.transform.scale(RHEROMAGEIMG,(100, 100))
+    LHEROMAGEIMG = pygame.transform.flip(RHEROMAGEIMG, True, False)
     #enemy imgs
-    LENEMYIMG = pygame.image.load('graphics/skull_enemy.png')
+    LENEMYIMG = pygame.image.load('graphics/enemies_img/skull_enemy.png')
     LENEMYIMG = pygame.transform.scale(LENEMYIMG,(130, 100))
     RENEMYIMG = pygame.transform.flip(LENEMYIMG,True, False)
 
-    LGOBLINMAGEIMG = pygame.image.load('graphics/goblin_mage.png')
+    LGOBLINMAGEIMG = pygame.image.load('graphics/enemies_img/goblin_mage.png')
     LGOBLINMAGEIMG = pygame.transform.scale(LGOBLINMAGEIMG,(80, 120))
     RGOBLINMAGEIMG = pygame.transform.flip(LGOBLINMAGEIMG,True, False)
 
-    LSMALLGOBLINIMG = pygame.image.load('graphics/small_goblin_v2.png')
+    LSMALLGOBLINIMG = pygame.image.load('graphics/enemies_img/small_goblin_v2.png')
     LSMALLGOBLINIMG = pygame.transform.scale(LSMALLGOBLINIMG,(80, 80))
     RSMALLGOBLINIMG = pygame.transform.flip(LSMALLGOBLINIMG,True, False)
     
-    RWOLF = pygame.image.load('graphics/wolf.png')
+    RWOLF = pygame.image.load('graphics/enemies_img/wolf.png')
     RWOLF = pygame.transform.scale(RWOLF,(100,100))
     LWOLF = pygame.transform.flip(RWOLF,True,False)
 
 
     #objs imgs
-    TREEIMG = pygame.image.load('graphics/tree_v2.png')
+    TREEIMG = pygame.image.load('graphics/other_img/tree_v2.png')
     TREEIMG = pygame.transform.scale(TREEIMG, (150,150))
 
     # other imgs
-    GRASSIMG = pygame.image.load('graphics/grass_v3.png')
+    GRASSIMG = pygame.image.load('graphics/other_img/grass_v3.png')
     GRASSIMG = pygame.transform.scale(GRASSIMG,(WINWIDTH,WINWIDTH))
-    HEARTIMG = pygame.image.load('graphics/heart.png')
+
+    HEARTIMG = pygame.image.load('graphics/hero_img/heart.png')
     HEARTIMG = pygame.transform.scale(HEARTIMG, (20,20))
-    RBLACKHEARTIMG = pygame.image.load('graphics/black_heart_r.png')
+    RBLACKHEARTIMG = pygame.image.load('graphics/hero_img/black_heart_r.png')
     RBLACKHEARTIMG = pygame.transform.scale(RBLACKHEARTIMG, (20,20))
     LBLACKHEARTIMG = pygame.transform.flip(RBLACKHEARTIMG, True, False)
-    RSWORDPARTICLES = pygame.image.load('graphics/sword_particles.png')
+    RSWORDPARTICLES = pygame.image.load('graphics/hero_img/sword_particles.png')
     RSWORDPARTICLES = pygame.transform.scale(RSWORDPARTICLES, (120,180) )
     LSWORDPARTICLES = pygame.transform.flip(RSWORDPARTICLES, True, False)
 
@@ -132,7 +136,7 @@ def run_game():
     goblinmage1_objs = []
     smallgoblin1_objs = []
     # creating a Player Character
-    main_character = Hero(RHEROIMG, HALFWINWIDTH, HALFWINHEIGHT, STARTLEVEL, MAXHEALTH , HEARTIMG, RBLACKHEARTIMG, LBLACKHEARTIMG)
+    main_character = Hero(RHEROIMG, HALFWINWIDTH, HALFWINHEIGHT, STARTLEVEL, MAXHEALTH , HEARTIMG, RBLACKHEARTIMG, LBLACKHEARTIMG, RHEROMAGEIMG, LHEROMAGEIMG, LHEROIMG)
     
 
     moveLeft = False
@@ -234,7 +238,6 @@ def run_game():
         draw_trees(trees_objs)
            
         # draw all objects
-
         # draw player and other entities
         draw_hero(main_character,camera_x,camera_y,attackKey)
         main_character.draw_health_bar(DISPLAYSURF)
@@ -279,14 +282,24 @@ def run_game():
                     #flipping the player left
                     if main_character.image == RHEROIMG:
                         main_character.image = LHEROIMG
+                        main_character.direction = "left"
+                    if main_character.image == RHEROMAGEIMG:
+                        main_character.image = LHEROMAGEIMG
+                        main_character.direction = "left"
                 elif event.key in (K_RIGHT, K_d):
                     moveLeft = False
                     moveRight = True
                     #flipping the player right
                     if main_character.image == LHEROIMG:
                         main_character.image = RHEROIMG
+                        main_character.direction = "right"
+                    if main_character.image == LHEROMAGEIMG:
+                        main_character.image = RHEROMAGEIMG
+                        main_character.direction = "right"
                 elif event.key == K_q:
                     attackKey = True
+                elif event.key == K_e:
+                    main_character.change_equipment()
 
             # stop players movement if keyup
             elif event.type == KEYUP:
@@ -349,7 +362,7 @@ def draw_hero(hero, camera_x, camera_y,attackKey): # draw player on screen
     heroRect.center = (hero.position_x - camera_x, hero.position_y - camera_y)
     DISPLAYSURF.blit(hero.image, heroRect)
     if attackKey == True:
-            hero_attack(main_character)
+            hero_attack_sword(main_character)
 
 
 def moving_hero(hero, moveLeft, moveRight, moveUp, moveDown): # move player
@@ -390,8 +403,8 @@ def generate_new_tree():
     #print(f"added tree {t.position_x} {t.position_y}")
     return t
 
-def hero_attack(hero):
-    if hero.image == RHEROIMG:
+def hero_attack_sword(hero):
+    if hero.image == hero.rimage_sword:
         hero.image = R2HEROIMG
         draw_background()
         draw_trees(trees_objs)
@@ -417,13 +430,13 @@ def hero_attack(hero):
         draw_entity(hero,camera_x-10,camera_y)
         DISPLAYSURF.blit(RSWORDPARTICLES, particlesRect)
         pygame.display.update()
-        hero.image = RHEROIMG
+        hero.image = hero.rimage_sword
         check_for_attack_collision(hero, RSWORDPARTICLES, +30, enemy1_objs)
         check_for_attack_collision(hero, RSWORDPARTICLES, +30, goblinmage1_objs)
         check_for_attack_collision(hero, RSWORDPARTICLES, +30, smallgoblin1_objs)
                 
 
-    if hero.image == LHEROIMG:
+    if hero.image == hero.limage_sword:
         hero.image = L2HEROIMG
         draw_background()
         draw_trees(trees_objs)
@@ -453,12 +466,81 @@ def hero_attack(hero):
         draw_entity(hero,camera_x-10,camera_y)
         DISPLAYSURF.blit(LSWORDPARTICLES, particlesRect)
         pygame.display.update()
-        hero.image = LHEROIMG
+        hero.image = hero.limage_sword
         check_for_attack_collision(hero, LSWORDPARTICLES, -30, enemy1_objs)
         check_for_attack_collision(hero, LSWORDPARTICLES, -30, goblinmage1_objs)
         check_for_attack_collision(hero, RSWORDPARTICLES, -30, smallgoblin1_objs)
 
         
+    pass
+
+def hero_attack_mage(hero):
+    if hero.image == hero.rimage_mage:
+        hero.image = R2HEROIMG
+        draw_background()
+        draw_trees(trees_objs)
+        for (enemy1) in enemy1_objs:
+            draw_entity(enemy1, camera_x, camera_y)
+        for (goblinmage1) in goblinmage1_objs:
+            draw_entity(goblinmage1, camera_x, camera_y)
+        hero.draw_health_bar(DISPLAYSURF)
+        draw_entity(hero,camera_x-10,camera_y)
+        pygame.display.update()
+        pygame.time.wait(5)
+        particlesRect = RSWORDPARTICLES.get_rect()
+        particlesRect.center = (hero.position_x+30 - camera_x, hero.position_y - camera_y)
+        DISPLAYSURF.blit(RSWORDPARTICLES, particlesRect)
+        pygame.display.update()
+        hero.image = R3HEROIMG
+        draw_background()
+        draw_trees(trees_objs)
+        for (enemy1) in enemy1_objs:
+            draw_entity(enemy1, camera_x, camera_y)
+        for (goblinmage1) in goblinmage1_objs:
+            draw_entity(goblinmage1, camera_x, camera_y)
+        draw_entity(hero,camera_x-10,camera_y)
+        DISPLAYSURF.blit(RSWORDPARTICLES, particlesRect)
+        pygame.display.update()
+        hero.image = hero.rimage_mage
+        check_for_attack_collision(hero, RSWORDPARTICLES, +30, enemy1_objs)
+        check_for_attack_collision(hero, RSWORDPARTICLES, +30, goblinmage1_objs)
+        check_for_attack_collision(hero, RSWORDPARTICLES, +30, smallgoblin1_objs)
+                
+
+    if hero.image == hero.limage_mage:
+        hero.image = L2HEROIMG
+        draw_background()
+        draw_trees(trees_objs)
+        for (enemy1) in enemy1_objs:
+            draw_entity(enemy1, camera_x, camera_y)
+        for (goblinmage1) in goblinmage1_objs:
+            draw_entity(goblinmage1, camera_x, camera_y)
+        for (smallgoblin1) in smallgoblin1_objs:
+            draw_entity(smallgoblin1, camera_x, camera_y)
+        hero.draw_health_bar(DISPLAYSURF)
+        draw_entity(hero,camera_x-10,camera_y)
+        pygame.display.update()
+        pygame.time.wait(5)
+        particlesRect = LSWORDPARTICLES.get_rect()
+        particlesRect.center = (hero.position_x-30 - camera_x, hero.position_y - camera_y)
+        DISPLAYSURF.blit(LSWORDPARTICLES, particlesRect)
+        pygame.display.update()
+        hero.image = L3HEROIMG
+        draw_background()
+        draw_trees(trees_objs)
+        for (enemy1) in enemy1_objs:
+            draw_entity(enemy1, camera_x, camera_y)
+        for (goblinmage1) in goblinmage1_objs:
+            draw_entity(goblinmage1, camera_x, camera_y)
+        for (smallgoblin1) in smallgoblin1_objs:
+            draw_entity(smallgoblin1, camera_x, camera_y)
+        draw_entity(hero,camera_x-10,camera_y)
+        DISPLAYSURF.blit(LSWORDPARTICLES, particlesRect)
+        pygame.display.update()
+        hero.image = hero.limage_mage
+        check_for_attack_collision(hero, LSWORDPARTICLES, -30, enemy1_objs)
+        check_for_attack_collision(hero, LSWORDPARTICLES, -30, goblinmage1_objs)
+        check_for_attack_collision(hero, RSWORDPARTICLES, -30, smallgoblin1_objs)
     pass
 
 def check_for_attack_collision(hero, SWORDPARTICLES, z_value, enemy_obj):

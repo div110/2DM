@@ -1,16 +1,22 @@
 import pygame
 
 class Hero():
-    def __init__(self,image, position_x, position_y, level, max_health, heart_image,bheart_r_image,bheart_l_image):
+    def __init__(self,image, position_x, position_y, level, max_health, heart_image,bheart_r_image,bheart_l_image, image_mage, limage_mage, l_image):
         self.position_x : int = position_x
         self.position_y : int = position_y
         self.current_health : int = max_health
         self.image : str = image
+        self.rimage_mage : str = image_mage
+        self.rimage_sword : str = image
+        self.limage_mage : str = limage_mage
+        self.limage_sword : str = l_image
         self.level : int = level
         self.max_health : int = max_health
         self.heart_image : str = heart_image
         self.bheart_r_image : str = bheart_r_image
         self.bheart_l_image : str = bheart_l_image
+        self.weapon_mode = "sword"
+        self.direction = "right"
     
     def is_alive(self):
         if self.current_health <= 0:
@@ -38,3 +44,20 @@ class Hero():
     def get_hero_hitbox(self, camera_x, camera_y):
         heroRect = pygame.Rect(self.position_x-camera_x-2 , self.position_y-camera_y-2, 4, 4)
         return heroRect
+    
+    def change_equipment(self):
+        if self.weapon_mode == "sword":
+            if self.direction == "right":
+                self.image = self.rimage_mage
+                self.weapon_mode = "mage"
+            elif self.direction == "left":
+                self.image = self.limage_mage
+                self.weapon_mode = "mage"
+        elif self.weapon_mode == "mage":
+            if self.direction == "right":
+                self.image = self.rimage_sword
+                self.weapon_mode = "sword"
+            elif self.direction == "left":
+                self.image = self.limage_sword
+                self.weapon_mode = "sword"
+        pass
