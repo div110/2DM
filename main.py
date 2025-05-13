@@ -7,7 +7,7 @@ from hero import Hero
 from enemy import Enemy
 from tree import Tree
 from goblin_mage import Goblin_Mage
-
+from small_goblin import Small_Goblin
 
 FPS = 30
 WINWIDTH = 4* 240
@@ -48,7 +48,7 @@ MAXOFFSCREENPOS = 200 # max distance (in pixels??) of a object
 def main():
     global FPSCLOCK, DISPLAYSURF, BASICFONT, BASICFONTLARGE, NUMSOFTREES
     global main_character, RHEROIMG, LHEROIMG, LENEMYIMG, RENEMYIMG, TREEIMG, treeimgheight, treeimgwidth,grass_tile_size, GRASSIMG, HEARTIMG, RBLACKHEARTIMG, LBLACKHEARTIMG
-    global RSWORDPARTICLES, LSWORDPARTICLES, R2HEROIMG,L2HEROIMG, R3HEROIMG, L3HEROIMG, LGOBLINMAGEIMG, RGOBLINMAGEIMG
+    global RSWORDPARTICLES, LSWORDPARTICLES, R2HEROIMG,L2HEROIMG, R3HEROIMG, L3HEROIMG, LGOBLINMAGEIMG, RGOBLINMAGEIMG, LSMALLGOBLINIMG, RSMALLGOBLINIMG
     pygame.init()
     FPSCLOCK = pygame.time.Clock()
     DISPLAYSURF = pygame.display.set_mode((WINWIDTH, WINHEIGHT))
@@ -57,6 +57,7 @@ def main():
     BASICFONTLARGE = pygame.font.Font('freesansbold.ttf', 128)
 
     #loading pictures
+    # hero imgs
     RHEROIMG = pygame.image.load('graphics/hero_v3.png')
     RHEROIMG = pygame.transform.scale(RHEROIMG,(100, 100))
     LHEROIMG = pygame.transform.flip(RHEROIMG, True, False)
@@ -69,6 +70,7 @@ def main():
     R3HEROIMG = pygame.transform.scale(R3HEROIMG,(100, 100))
     L3HEROIMG = pygame.transform.flip(R3HEROIMG, True, False)
 
+    #enemy imgs
     LENEMYIMG = pygame.image.load('graphics/skull_enemy.png')
     LENEMYIMG = pygame.transform.scale(LENEMYIMG,(130, 100))
     RENEMYIMG = pygame.transform.flip(LENEMYIMG,True, False)
@@ -77,9 +79,15 @@ def main():
     LGOBLINMAGEIMG = pygame.transform.scale(LGOBLINMAGEIMG,(80, 120))
     RGOBLINMAGEIMG = pygame.transform.flip(LGOBLINMAGEIMG,True, False)
 
+    LSMALLGOBLINIMG = pygame.image.load('graphics/small_goblin_v2.png')
+    LSMALLGOBLINIMG = pygame.transform.scale(LSMALLGOBLINIMG,(80, 80))
+    RSMALLGOBLINIMG = pygame.transform.flip(LSMALLGOBLINIMG,True, False)
+
+    #objs imgs
     TREEIMG = pygame.image.load('graphics/tree_v2.png')
     TREEIMG = pygame.transform.scale(TREEIMG, (150,150))
 
+    # other imgs
     GRASSIMG = pygame.image.load('graphics/grass_v3.png')
     GRASSIMG = pygame.transform.scale(GRASSIMG,(WINWIDTH,WINWIDTH))
     HEARTIMG = pygame.image.load('graphics/heart.png')
@@ -90,13 +98,10 @@ def main():
     RSWORDPARTICLES = pygame.image.load('graphics/sword_particles.png')
     RSWORDPARTICLES = pygame.transform.scale(RSWORDPARTICLES, (120,180) )
     LSWORDPARTICLES = pygame.transform.flip(RSWORDPARTICLES, True, False)
+
     treeimgwidth = TREEIMG.get_width()
     treeimgheight = TREEIMG.get_height()
     grass_tile_size = GRASSIMG.get_width()
-    # game texts, incomplete!!
-    game_over_surf, game_over_rect = make_text("GAME OVER", WHITE, BLACK, 0,0)
-    game_win_surf, game_win_rect = make_text("YOU HAVE ACHIEVED MAX LEVEL", WHITE, BLACK, 0,0)
-
 
     while True:
         run_game()
@@ -105,7 +110,7 @@ def run_game():
     # initial values are set to defaul for easy reset
     global FPSCLOCK, DISPLAYSURF, main_character, NUMSOFTREES, NUMSENEMY
     global moveDown, moveLeft, moveRight, moveUp, camera_x, camera_y, attackKey
-    global gameOverMode, winMode, immortalityMode, immortalityStartTime, trees_objs, enemy1, enemy1_objs, goblinmage1_objs
+    global gameOverMode, winMode, immortalityMode, immortalityStartTime, trees_objs, enemy1, enemy1_objs, goblinmage1_objs, smallgoblin1_objs
     immortalityMode = False
     immortalityStartTime = 0
     gameOverMode = False        
@@ -116,6 +121,7 @@ def run_game():
     camera_y = 0
     enemy1_objs = []
     goblinmage1_objs = []
+    smallgoblin1_objs = []
     # creating a Player Character
     main_character = Hero(RHEROIMG, HALFWINWIDTH, HALFWINHEIGHT, STARTLEVEL, MAXHEALTH , HEARTIMG, RBLACKHEARTIMG, LBLACKHEARTIMG)
     
@@ -132,9 +138,10 @@ def run_game():
         enemy1.get_random_position_off_screen(moveUp, moveDown, moveLeft, moveRight, MAXOFFSCREENPOS, WINWIDTH, WINHEIGHT)
         enemy1_objs.append(enemy1)
     for goblinmage1 in range(NUMSGOBLINMAGE):
-        goblinmage1= Goblin_Mage(LGOBLINMAGEIMG,RGOBLINMAGEIMG,0,0,3,20)
+        goblinmage1= Goblin_Mage(LGOBLINMAGEIMG,RGOBLINMAGEIMG,0,0,3,20, Small_Goblin, LSMALLGOBLINIMG, RSMALLGOBLINIMG)
         goblinmage1.get_random_position_off_screen(moveUp, moveDown, moveLeft, moveRight, MAXOFFSCREENPOS, WINWIDTH, WINHEIGHT)
         goblinmage1_objs.append(goblinmage1)
+
     #draw background
     start_x = -camera_x % grass_tile_size - grass_tile_size
     start_y = -camera_y % grass_tile_size - grass_tile_size
@@ -188,13 +195,16 @@ def run_game():
 
         while len(goblinmage1_objs) < NUMSGOBLINMAGE:
             #print()
-            goblinmage1= Goblin_Mage(LGOBLINMAGEIMG,RGOBLINMAGEIMG,0,0,3,20)
+            goblinmage1= Goblin_Mage(LGOBLINMAGEIMG,RGOBLINMAGEIMG,0,0,3,20, Small_Goblin, LSMALLGOBLINIMG,RSMALLGOBLINIMG)
             goblinmage1.get_random_position_off_screen(moveUp, moveDown, moveLeft, moveRight, MAXOFFSCREENPOS, WINWIDTH, WINHEIGHT)
             goblinmage1.position_x += camera_x
             goblinmage1.position_y += camera_y
             goblinmage1_objs.append(goblinmage1)
         #print(len(trees_objs))
+
         # adding more objects
+
+
 
 
         # draw background
@@ -219,6 +229,17 @@ def run_game():
         for (goblinmage1) in goblinmage1_objs:
             draw_entity(goblinmage1, camera_x, camera_y)
             goblinmage1.move(main_character.position_x,main_character.position_y)
+            goblinmage1.update() # updating time in goblinmage
+            if len(smallgoblin1_objs) >= 15: # if there is less than 16 small goblins spawning new if goblinmage reached time for new spawn
+                break
+            for (smallgoblin1) in goblinmage1.small_goblin_objs:
+                smallgoblin1_objs.append(smallgoblin1) # adding spawned goblins from goblinmage into the main
+            goblinmage1.small_goblin_objs = [] # removing spawned goblins from goblinmage
+
+
+        for (smallgoblin1) in smallgoblin1_objs:         
+            draw_entity(smallgoblin1, camera_x, camera_y)
+            smallgoblin1.move(main_character.position_x,main_character.position_y)
 
         for event in pygame.event.get(): # event handling cycle
             if event.type == QUIT:
@@ -297,12 +318,6 @@ def run_game():
 def terminate(): # end game
     pygame.quit()
     sys.exit()
-
-def make_text(text, color, bg_color, top, left): # make text on screen  pozn. div110: jakoze proc toto?
-    text_surf = BASICFONT.render(text, True, color, bg_color)
-    text_rect = text_surf.get_rect()
-    text_rect.topleft = (top, left)
-    return text_surf, text_rect
 
 def draw_entity(hero, camera_x, camera_y): # draw player on screen
     heroRect = hero.image.get_rect()
@@ -385,6 +400,7 @@ def hero_attack(hero):
         hero.image = RHEROIMG
         check_for_attack_collision(hero, RSWORDPARTICLES, +30, enemy1_objs)
         check_for_attack_collision(hero, RSWORDPARTICLES, +30, goblinmage1_objs)
+        check_for_attack_collision(hero, RSWORDPARTICLES, +30, smallgoblin1_objs)
                 
 
     if hero.image == LHEROIMG:
@@ -416,6 +432,7 @@ def hero_attack(hero):
         hero.image = LHEROIMG
         check_for_attack_collision(hero, LSWORDPARTICLES, -30, enemy1_objs)
         check_for_attack_collision(hero, LSWORDPARTICLES, -30, goblinmage1_objs)
+        check_for_attack_collision(hero, RSWORDPARTICLES, -30, smallgoblin1_objs)
 
         
     pass
@@ -462,10 +479,19 @@ def check_for_damage():
             main_character.current_health -= 1
             if main_character.is_alive() == False:
                game_over() 
-            
+            immortalityStartTime = time.time()
+            immortalityMode = True
+            break
+    for (smallgoblin1) in smallgoblin1_objs:
+        enemyRect = smallgoblin1.get_enemy_attackbox(camera_x,camera_y)
+        if heroRect.colliderect(enemyRect):
+            main_character.current_health -= 1
+            if main_character.is_alive() == False:
+               game_over() 
             immortalityStartTime = time.time()
             immortalityMode = True
             return
+    
 
 def game_over():
     main_character.position_x = 175
