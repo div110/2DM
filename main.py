@@ -111,12 +111,14 @@ def main():
     MANUALIMG = pygame.image.load('graphics/other_img/manual.png')
     MANUALIMG = pygame.transform.scale(MANUALIMG,(250,200))
 
+    #heats imgs
     HEARTIMG = pygame.image.load('graphics/hero_img/heart.png')
     HEARTIMG = pygame.transform.scale(HEARTIMG, (20,20))
     RBLACKHEARTIMG = pygame.image.load('graphics/hero_img/black_heart_r.png')
     RBLACKHEARTIMG = pygame.transform.scale(RBLACKHEARTIMG, (20,20))
     LBLACKHEARTIMG = pygame.transform.flip(RBLACKHEARTIMG, True, False)
 
+    #animations imgs
     RMAGEPROJEKTIL = pygame.image.load('graphics/hero_img/hero_mage_projektil.png')
     RMAGEPROJEKTIL = pygame.transform.scale(RMAGEPROJEKTIL, (50,50) )
     LMAGEPROJEKTIL = pygame.transform.flip(RMAGEPROJEKTIL, True, False)
@@ -355,6 +357,7 @@ def run_game():
 
         
         # players movement
+        main_character.update()
         moving_hero(main_character, moveLeft, moveRight, moveUp, moveDown) 
         #print("hero pos x", main_character.position_x, "hero pos y", main_character.position_y)
         # camera movement
@@ -518,70 +521,71 @@ def hero_attack_sword(hero):
     pass
 
 def hero_attack_mage(hero):
-    if hero.image == hero.rimage_mage:
-        hero.image = RHEROMAGEATTIMG
-        draw_background()
-        draw_trees(trees_objs)
-        for (enemy1) in enemy1_objs:
-            draw_entity(enemy1, camera_x, camera_y)
-        for (goblinmage1) in goblinmage1_objs:
-            draw_entity(goblinmage1, camera_x, camera_y)
-        for (smallgoblin1) in smallgoblin1_objs:
-            draw_entity(smallgoblin1, camera_x, camera_y)
-        hero.draw_health_bar(DISPLAYSURF)
-        draw_entity(hero,camera_x-10,camera_y)
-        pygame.display.update()
-        pygame.time.wait(5)
-        fire_shot_objs1 = hero.generate_fire_shot()
-        fire_shot_objs.append(fire_shot_objs1)
-        draw_entity(fire_shot_objs1,camera_x,camera_y)
-        pygame.display.update()
-        draw_background()
-        draw_trees(trees_objs)
-        for (enemy1) in enemy1_objs:
-            draw_entity(enemy1, camera_x, camera_y)
-        for (goblinmage1) in goblinmage1_objs:
-            draw_entity(goblinmage1, camera_x, camera_y)
-        for (smallgoblin1) in smallgoblin1_objs:
-            draw_entity(smallgoblin1, camera_x, camera_y)
-        draw_entity(hero,camera_x-10,camera_y)
-        #DISPLAYSURF.blit(RSWORDPARTICLES, particlesRect)
-        pygame.display.update()
-        hero.image = hero.rimage_mage
+    if hero.fire_shot_charged:
+        if hero.image == hero.rimage_mage:
+            hero.image = RHEROMAGEATTIMG
+            draw_background()
+            draw_trees(trees_objs)
+            for (enemy1) in enemy1_objs:
+                draw_entity(enemy1, camera_x, camera_y)
+            for (goblinmage1) in goblinmage1_objs:
+                draw_entity(goblinmage1, camera_x, camera_y)
+            for (smallgoblin1) in smallgoblin1_objs:
+                draw_entity(smallgoblin1, camera_x, camera_y)
+            hero.draw_health_bar(DISPLAYSURF)
+            draw_entity(hero,camera_x-10,camera_y)
+            pygame.display.update()
+            pygame.time.wait(5)
+            fire_shot_objs1 = hero.generate_fire_shot()
+            fire_shot_objs.append(fire_shot_objs1)
+            draw_entity(fire_shot_objs1,camera_x,camera_y)
+            pygame.display.update()
+            draw_background()
+            draw_trees(trees_objs)
+            for (enemy1) in enemy1_objs:
+                draw_entity(enemy1, camera_x, camera_y)
+            for (goblinmage1) in goblinmage1_objs:
+                draw_entity(goblinmage1, camera_x, camera_y)
+            for (smallgoblin1) in smallgoblin1_objs:
+                draw_entity(smallgoblin1, camera_x, camera_y)
+            draw_entity(hero,camera_x-10,camera_y)
+            #DISPLAYSURF.blit(RSWORDPARTICLES, particlesRect)
+            pygame.display.update()
+            hero.image = hero.rimage_mage
 
-                
+                    
 
-    if hero.image == hero.limage_mage:
-        hero.image = LHEROMAGEATTIMG
-        draw_background()
-        draw_trees(trees_objs)
-        for (enemy1) in enemy1_objs:
-            draw_entity(enemy1, camera_x, camera_y)
-        for (goblinmage1) in goblinmage1_objs:
-            draw_entity(goblinmage1, camera_x, camera_y)
-        for (smallgoblin1) in smallgoblin1_objs:
-            draw_entity(smallgoblin1, camera_x, camera_y)
-        hero.draw_health_bar(DISPLAYSURF)
-        draw_entity(hero,camera_x-10,camera_y)
-        pygame.display.update()
-        pygame.time.wait(5)
-        fire_shot_objs1 = hero.generate_fire_shot()
-        fire_shot_objs.append(fire_shot_objs1)
-        draw_entity(fire_shot_objs1,camera_x,camera_y)
-        pygame.display.update()
-        draw_background()
-        draw_trees(trees_objs)
-        for (enemy1) in enemy1_objs:
-            draw_entity(enemy1, camera_x, camera_y)
-        for (goblinmage1) in goblinmage1_objs:
-            draw_entity(goblinmage1, camera_x, camera_y)
-        for (smallgoblin1) in smallgoblin1_objs:
-            draw_entity(smallgoblin1, camera_x, camera_y)
-        draw_entity(hero,camera_x-10,camera_y)
-        #DISPLAYSURF.blit(LSWORDPARTICLES, particlesRect)
-        pygame.display.update()
-        hero.image = hero.limage_mage
-    pass
+        if hero.image == hero.limage_mage:
+            hero.image = LHEROMAGEATTIMG
+            draw_background()
+            draw_trees(trees_objs)
+            for (enemy1) in enemy1_objs:
+                draw_entity(enemy1, camera_x, camera_y)
+            for (goblinmage1) in goblinmage1_objs:
+                draw_entity(goblinmage1, camera_x, camera_y)
+            for (smallgoblin1) in smallgoblin1_objs:
+                draw_entity(smallgoblin1, camera_x, camera_y)
+            hero.draw_health_bar(DISPLAYSURF)
+            draw_entity(hero,camera_x-10,camera_y)
+            pygame.display.update()
+            pygame.time.wait(5)
+            fire_shot_objs1 = hero.generate_fire_shot()
+            fire_shot_objs.append(fire_shot_objs1)
+            draw_entity(fire_shot_objs1,camera_x,camera_y)
+            pygame.display.update()
+            draw_background()
+            draw_trees(trees_objs)
+            for (enemy1) in enemy1_objs:
+                draw_entity(enemy1, camera_x, camera_y)
+            for (goblinmage1) in goblinmage1_objs:
+                draw_entity(goblinmage1, camera_x, camera_y)
+            for (smallgoblin1) in smallgoblin1_objs:
+                draw_entity(smallgoblin1, camera_x, camera_y)
+            draw_entity(hero,camera_x-10,camera_y)
+            #DISPLAYSURF.blit(LSWORDPARTICLES, particlesRect)
+            pygame.display.update()
+            hero.image = hero.limage_mage
+        pass
 
 def check_for_attack_collision(hero, SWORDPARTICLES, z_value, enemy_obj):
     particles_width = SWORDPARTICLES.get_width()

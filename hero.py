@@ -22,6 +22,10 @@ class Hero():
         self.fire_shot_class = fire_shot_class
         self.rfire_shotimg = rfire_shot_img
         self.lfire_shotimg = lfire_shot_img
+        self.fire_shot_charge_time = 1500
+        self.fire_shot_charged = True
+        self.spawn_time = pygame.time.get_ticks()
+        
     
     def is_alive(self):
         if self.current_health <= 0:
@@ -68,14 +72,23 @@ class Hero():
         pass
 
     def generate_fire_shot(self):
-        if self.direction == "right":
-            fsimage = self.rfire_shotimg
-            xpos = self.position_x +60
-        elif self.direction == "left":
-            xpos = self.position_x -60
-            fsimage = self.lfire_shotimg
-        ypos = self.position_y
-        return self.fire_shot_class(fsimage, xpos, ypos, 12, self.direction)
+        if self.fire_shot_charged == True:
+            if self.direction == "right":
+                fsimage = self.rfire_shotimg
+                xpos = self.position_x +60
+            elif self.direction == "left":
+                xpos = self.position_x -60
+                fsimage = self.lfire_shotimg
+            ypos = self.position_y
+            self.fire_shot_charged = False
+            return self.fire_shot_class(fsimage, xpos, ypos, 12, self.direction)
          
 
+        pass
+
+    def update(self): # matches time with main and check if its time for spawn
+        current_time = pygame.time.get_ticks()
+        if current_time - self.spawn_time > self.fire_shot_charge_time:
+            self.fire_shot_charged = True
+            self.spawn_time = current_time
         pass
