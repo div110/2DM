@@ -1,0 +1,5 @@
+# git ignore pycache 
+__pycache__/
+
+# git ignore last_score
+last_score/
