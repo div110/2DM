@@ -11,6 +11,8 @@ from objects_classes.tree import Tree
 from enemies_classes.goblin_mage import Goblin_Mage
 from enemies_classes.small_goblin import Small_Goblin
 from enemies_classes.wolf import Wolf
+from enemies_classes.boss import Boss
+from enemies_classes.magic_pillar import Magic_Pillar
 from fire_shot import Fire_Shot
 
 FPS = 30
@@ -46,7 +48,7 @@ ENEMYMAXSPEED = 7
 DIRCHANGEFREQ = 2 # direction change frequency - ako casto sa enemy pohybuju nahodne do novej strany ??div110: netusim co to je
 ENEMYHEALTH = 1
 
-NUMSOFTREES = 20 
+NUMSOFTREES = 3 
 MAXOFFSCREENPOS = 200 # max distance (in pixels??) of a object
 
 
@@ -57,6 +59,7 @@ def main():
     global main_character, RHEROIMG, LHEROIMG, LENEMYIMG, RENEMYIMG, TREEIMG, treeimgheight, treeimgwidth,grass_tile_size, GRASSIMG, HEARTIMG, RBLACKHEARTIMG, LBLACKHEARTIMG
     global RSWORDPARTICLES, LSWORDPARTICLES, R2HEROIMG,L2HEROIMG, R3HEROIMG, L3HEROIMG, LGOBLINMAGEIMG, RGOBLINMAGEIMG, LSMALLGOBLINIMG, RSMALLGOBLINIMG
     global RWOLF, LWOLF, RHEROMAGEIMG, LHEROMAGEIMG, MANUALIMG, RHEROMAGEATTIMG, LHEROMAGEATTIMG, RMAGEPROJEKTIL, LMAGEPROJEKTIL, no_key_pressed
+    global BOSSIMG, BOSSBARIERIMG, BOSSPILLAR
     
     #initialize pygame
     pygame.init()
@@ -109,10 +112,10 @@ def main():
 
     #objs imgs
     TREEIMG = pygame.image.load('graphics/other_img/tree_v2.png') # load tree image
-    TREEIMG = pygame.transform.scale(TREEIMG, (150,150))
+    TREEIMG = pygame.transform.scale(TREEIMG, (250,250))
 
     # other imgs
-    GRASSIMG = pygame.image.load('graphics/other_img/grass_v3.png') # load grass image
+    GRASSIMG = pygame.image.load('graphics/other_img/grass_v8.png') # load grass image
     GRASSIMG = pygame.transform.scale(GRASSIMG,(WINWIDTH,WINWIDTH))
 
     MANUALIMG = pygame.image.load('graphics/other_img/manual.png') # load manual image
@@ -134,6 +137,17 @@ def main():
     RSWORDPARTICLES = pygame.transform.scale(RSWORDPARTICLES, (120,180) )
     LSWORDPARTICLES = pygame.transform.flip(RSWORDPARTICLES, True, False)
 
+    #boss stage imgs
+
+    BOSSIMG = pygame.image.load('graphics/enemies_img/boss_without_barier.png') # load boss  imge
+    BOSSIMG = pygame.transform.scale(BOSSIMG,(300, 300))
+
+    BOSSBARIERIMG = pygame.image.load('graphics/enemies_img/boss_with_barier.png') # load boss barier image
+    BOSSBARIERIMG = pygame.transform.scale(BOSSBARIERIMG,(300, 300))
+
+    BOSSPILLAR = pygame.image.load('graphics/enemies_img/boss_pilar.png') # load boss pillar img
+    BOSSPILLAR = pygame.transform.scale(BOSSPILLAR,(120, 120))
+
     # calculate objects width/height
     treeimgwidth = TREEIMG.get_width()
     treeimgheight = TREEIMG.get_height()
@@ -153,7 +167,7 @@ def run_game():
     global FPSCLOCK, DISPLAYSURF, main_character, NUMSOFTREES, NUMSENEMY
     global moveDown, moveLeft, moveRight, moveUp, camera_x, camera_y, attackKey
     global gameOverMode, winMode, immortalityMode, immortalityStartTime, trees_objs, enemy1, enemy1_objs, goblinmage1_objs, smallgoblin1_objs, fire_shot_objs
-    global enemy_level_multiplayer, current_max_enemy, current_killed_enemy, current_max_goblinmage, current_goblinmage_killed, pause
+    global enemy_level_multiplayer, current_max_enemy, current_killed_enemy, current_max_goblinmage, current_goblinmage_killed, pause, boss_stage_unlocked
     
     #reset stats and time
     immortalityMode = False
@@ -182,6 +196,7 @@ def run_game():
     moveUp = False
     moveDown = False
     attackKey = False
+    boss_stage_unlocked = False
     
     #reset level
     enemy_level_multiplayer = 1.02
@@ -374,6 +389,8 @@ def run_game():
                     attackKey = True
                 elif event.key == K_e: # change weapon
                     main_character.change_equipment()
+                elif event.key == K_m: # change weapon
+                    boss_stage_unlocked = True
 
             # stop players movement if keyup
             elif event.type == KEYUP:
@@ -444,6 +461,15 @@ def run_game():
         #update display and time
         pygame.display.update()
         FPSCLOCK.tick(FPS)
+
+        if boss_stage_unlocked == True:
+            enemy1_objs = []
+            goblinmage1_objs = []
+            smallgoblin1_objs = []
+            fire_shot_objs = []
+            trees_objs = []
+
+            boss_stage1()
     
 
 def terminate():
@@ -895,11 +921,155 @@ def draw_progress_bar_round(count, max):
     """draw progress bar on display"""
     pygame.draw.rect(DISPLAYSURF, (0,0,0),(WINWIDTH - 3 *240, 10, WINWIDTH/2, 20))
     pygame.draw.rect(DISPLAYSURF, (0,255,0),(WINWIDTH - 3 *240+5, 10+5, (WINWIDTH/2-10)*(max-count)/max, 20-10))
-    
+ 
 def draw_progress_bar_pause(count, max):
     """draw pause bar on display"""
     pygame.draw.rect(DISPLAYSURF, (0,0,0),(WINWIDTH - 3 *240, 10, WINWIDTH/2, 20))
     pygame.draw.rect(DISPLAYSURF, (0,0,255),(WINWIDTH - 3 *240+5, 10+5, (WINWIDTH/2-10)*(max-count)/max, 20-10))
+
+def boss_stage1():
+    """boss stage - its not done yet"""
+    global demon_lord1, magic_pillars_obj, fire_shot_objs
+    immortalityMode = False
+
+    fire_shot_objs = []
+    # reset camera
+    camera_x = 0
+    camera_y = 0
+
+    main_character.position_x = HALFWINWIDTH
+    main_character.position_y = HALFWINHEIGHT
+    
+
+    # reset movement
+    moveLeft = False
+    moveRight = False  
+    moveUp = False
+    moveDown = False
+    attackKey = False
+    demon_lord = Boss(BOSSIMG, BOSSBARIERIMG, 140, HALFWINHEIGHT, 200)
+    magic_pillar1 = Magic_Pillar(BOSSPILLAR, 100,100,25)
+    magic_pillar2 = Magic_Pillar(BOSSPILLAR, 250,200,25)
+    magic_pillar3 = Magic_Pillar(BOSSPILLAR, 100,650,25)
+    magic_pillar4 = Magic_Pillar(BOSSPILLAR, 200,600,25)
+
+    demon_lord1 = []
+    demon_lord1.append(demon_lord)
+    magic_pillars_obj = []
+    magic_pillars_obj.append(magic_pillar1)
+    magic_pillars_obj.append(magic_pillar2)
+    magic_pillars_obj.append(magic_pillar3)
+    magic_pillars_obj.append(magic_pillar4)
+
+    hero_collision = False
+
+    """core game loop"""    
+    while True:
+        # update players values and movement
+        if hero_collision == False:
+            if moveLeft:
+                main_character.position_x -= MOVERATE
+            if moveRight:
+                main_character.position_x += MOVERATE
+            if moveUp:
+                main_character.position_y -= MOVERATE
+            if moveDown:
+                main_character.position_y += MOVERATE
+            
+        # checking for invicible mode and exit if its time
+        if immortalityMode and time.time() - immortalityStartTime > NOHITTIME:
+            immortalityMode = False
+
+        # draw background
+        draw_background()
+
+        for (demon_lord2) in demon_lord1:
+            draw_entity(demon_lord2,camera_x, camera_y)
+            #print(demon_lord2.current_health)
+
+        for (magic_pillar7) in magic_pillars_obj:
+            draw_entity(magic_pillar7,camera_x, camera_y)
+
+        # draw player and health bar
+        draw_hero(main_character,camera_x,camera_y,attackKey)
+        main_character.draw_health_bar(DISPLAYSURF)
+
+        # check for collision between enemies and fireshot projectiles
+        for (fireshot1) in fire_shot_objs:
+            check_for_fire_shot_collision(main_character, fireshot1, fireshot1.image, demon_lord1)
+            check_for_fire_shot_collision(main_character, fireshot1, fireshot1.image, magic_pillars_obj)
+
+        # event handling cycle
+        for event in pygame.event.get():
+            if event.type == QUIT: # end game and exit program if quitkey was pressed
+                terminate()
+
+            #handling player movement
+            elif event.type == KEYDOWN:
+                if event.key in (K_UP, K_w):
+                    moveDown = False
+                    moveUp = True
+                elif event.key in (K_DOWN, K_s):
+                    moveUp = False
+                    moveDown = True
+                elif event.key in (K_LEFT, K_a):
+                    moveRight = False
+                    moveLeft = True
+                    #flipping the player left
+                    if main_character.image == RHEROIMG:
+                        main_character.image = LHEROIMG
+                        main_character.direction = "left"
+                    if main_character.image == RHEROMAGEIMG:
+                        main_character.image = LHEROMAGEIMG
+                        main_character.direction = "left"
+                elif event.key in (K_RIGHT, K_d):
+                    moveLeft = False
+                    moveRight = True
+                    #flipping the player right
+                    if main_character.image == LHEROIMG:
+                        main_character.image = RHEROIMG
+                        main_character.direction = "right"
+                    if main_character.image == LHEROMAGEIMG:
+                        main_character.image = RHEROMAGEIMG
+                        main_character.direction = "right"
+                elif event.key == K_q: # starts attack
+                    attackKey = True
+                elif event.key == K_e: # change weapon
+                    main_character.change_equipment()
+
+            # stop players movement if keyup
+            elif event.type == KEYUP:
+                if event.key in (K_LEFT, K_a):
+                    moveLeft = False
+                elif event.key in (K_RIGHT, K_d):
+                    moveRight = False
+                elif event.key in (K_UP, K_w):
+                    moveUp = False
+                elif event.key in (K_DOWN, K_s):
+                    moveDown = False
+                elif event.key == K_q:
+                    attackKey = False
+                elif event.key == K_ESCAPE:
+                    terminate()
+
+
+        
+        # player game state update
+        # synchronize time inside hero class
+        main_character.update()
+        # move player
+                
+        #hero movement
+        if hero_collision == False:
+            moving_hero(main_character, moveLeft, moveRight, moveUp, moveDown) 
+        # camera movement
+        moving_camera(main_character)
+        # scheck for collision between player and enemies and apply damage on player
+        check_for_damage()
+        
+        #update display and time
+        pygame.display.update()
+        FPSCLOCK.tick(FPS)
 
 """run main if program gets executed"""
 if __name__ == '__main__':
