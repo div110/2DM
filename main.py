@@ -153,7 +153,7 @@ def run_game():
     global FPSCLOCK, DISPLAYSURF, main_character, NUMSOFTREES, NUMSENEMY
     global moveDown, moveLeft, moveRight, moveUp, camera_x, camera_y, attackKey
     global gameOverMode, winMode, immortalityMode, immortalityStartTime, trees_objs, enemy1, enemy1_objs, goblinmage1_objs, smallgoblin1_objs, fire_shot_objs
-    global enemy_level_multiplayer, current_max_enemy, current_killed_enemy, current_max_goblinmage, current_goblinmage_killed
+    global enemy_level_multiplayer, current_max_enemy, current_killed_enemy, current_max_goblinmage, current_goblinmage_killed, pause
     
     #reset stats and time
     immortalityMode = False
@@ -175,6 +175,7 @@ def run_game():
     main_character = Hero(RHEROIMG, HALFWINWIDTH, HALFWINHEIGHT, STARTLEVEL, MAXHEALTH , HEARTIMG, RBLACKHEARTIMG, LBLACKHEARTIMG, RHEROMAGEIMG, LHEROMAGEIMG, LHEROIMG, Fire_Shot,
                           RMAGEPROJEKTIL, LMAGEPROJEKTIL)
     
+
     # reset movement
     moveLeft = False
     moveRight = False  
@@ -233,17 +234,22 @@ def run_game():
     start_screen()
 
 
+    global hero_collision
+    hero_collision = False
+
     """core game loop"""    
     while True:
         # update players values and movement
-        if moveLeft:
-            main_character.position_x -= MOVERATE
-        if moveRight:
-            main_character.position_x += MOVERATE
-        if moveUp:
-            main_character.position_y -= MOVERATE
-        if moveDown:
-            main_character.position_y += MOVERATE
+        if hero_collision == False:
+            if moveLeft:
+                main_character.position_x -= MOVERATE
+            if moveRight:
+                main_character.position_x += MOVERATE
+            if moveUp:
+                main_character.position_y -= MOVERATE
+            if moveDown:
+                main_character.position_y += MOVERATE
+            
         # checking for invicible mode and exit if its time
         if immortalityMode and time.time() - immortalityStartTime > NOHITTIME:
             immortalityMode = False
@@ -262,7 +268,7 @@ def run_game():
         #check for pause before waves
         if pause == 0:
             # generate new basic enemy
-            while len(enemy1_objs) < NUMSENEMY and len(enemy1_objs) < (current_max_enemy - current_killed_enemy):
+            while len(enemy1_objs) < current_max_enemy and len(enemy1_objs) < (current_max_enemy - current_killed_enemy):
                 enemy1= Enemy(LENEMYIMG,RENEMYIMG,0+camera_x,0+camera_y,5,20)
                 enemy1.get_random_position_off_screen(moveUp, moveDown, moveLeft, moveRight, MAXOFFSCREENPOS, WINWIDTH, WINHEIGHT)
                 enemy1.position_x += camera_x
@@ -270,7 +276,7 @@ def run_game():
                 enemy1_objs.append(enemy1)
 
             # generate new goblin mages
-            while len(goblinmage1_objs) < NUMSGOBLINMAGE and len(goblinmage1_objs) < (current_max_goblinmage - current_goblinmage_killed):
+            while len(goblinmage1_objs) < current_max_goblinmage and len(goblinmage1_objs) < (current_max_goblinmage - current_goblinmage_killed):
                 goblinmage1= Goblin_Mage(LGOBLINMAGEIMG,RGOBLINMAGEIMG,0,0,3,20, Small_Goblin, LSMALLGOBLINIMG,RSMALLGOBLINIMG)
                 goblinmage1.get_random_position_off_screen(moveUp, moveDown, moveLeft, moveRight, MAXOFFSCREENPOS, WINWIDTH, WINHEIGHT)
                 goblinmage1.position_x += camera_x
@@ -390,7 +396,29 @@ def run_game():
         # synchronize time inside hero class
         main_character.update()
         # move player
-        moving_hero(main_character, moveLeft, moveRight, moveUp, moveDown) 
+
+
+        """
+        ## check hero collision with 
+        
+        hero_collision = False
+        heroRect = main_character.get_collision_hero_rect(camera_x, camera_y,moveDown , moveLeft, moveRight, moveUp, MOVERATE)
+        for (tree1) in trees_objs:
+            treeRect = tree1.get_tree_rect(camera_x, camera_y)      
+            if treeRect.colliderect(heroRect):
+                hero_collision = True
+                moveLeft = False
+                moveRight = False
+                moveUp = False
+                moveDown = False
+                
+        """
+                
+
+        
+        #hero movement
+        if hero_collision == False:
+            moving_hero(main_character, moveLeft, moveRight, moveUp, moveDown) 
         # camera movement
         moving_camera(main_character)
         # scheck for collision between player and enemies and apply damage on player
@@ -406,7 +434,6 @@ def run_game():
             main_character.level += 1
         
         if pause > 0:
-            #nakresli progres bar
             pause -= 1
             draw_progress_bar_pause(pause, 150)
             pass
@@ -485,6 +512,7 @@ def generate_new_tree():
 
 def hero_attack_sword(hero):
     """draw sword attack animation on display and check for hits"""
+    global current_killed_enemy, current_goblinmage_killed
     if hero.image == hero.rimage_sword: # attack on right side
         hero.image = R2HEROIMG # change hero image to attacking image
         # draw backgroung, enemies, objects, healtbarddd
@@ -496,6 +524,11 @@ def hero_attack_sword(hero):
             draw_entity(goblinmage1, camera_x, camera_y)
         for (smallgoblin1) in smallgoblin1_objs:
             draw_entity(smallgoblin1, camera_x, camera_y)
+        if pause > 0:
+            draw_progress_bar_pause(pause, 150)
+            pass
+        else:
+            draw_progress_bar_round(current_killed_enemy + current_goblinmage_killed, current_max_goblinmage+current_max_enemy)
         hero.draw_health_bar(DISPLAYSURF)
         draw_entity(hero,camera_x-10,camera_y) # draw hero
         pygame.display.update() # update display
@@ -513,12 +546,17 @@ def hero_attack_sword(hero):
             draw_entity(goblinmage1, camera_x, camera_y)
         for (smallgoblin1) in smallgoblin1_objs:
             draw_entity(smallgoblin1, camera_x, camera_y)
+        if pause > 0:
+            draw_progress_bar_pause(pause, 150)
+            pass
+        else:
+            draw_progress_bar_round(current_killed_enemy + current_goblinmage_killed, current_max_goblinmage+current_max_enemy)
+        hero.draw_health_bar(DISPLAYSURF)
         draw_entity(hero,camera_x-10,camera_y) # draw hero
         DISPLAYSURF.blit(RSWORDPARTICLES, particlesRect) # draw swordparticles
         pygame.display.update() # update display
         hero.image = hero.rimage_sword # change image back to normal
         # check for collision between swordparticles and lists of enemies
-        global current_killed_enemy, current_goblinmage_killed
         current_killed_enemy = check_for_attack_collision(hero, RSWORDPARTICLES, +30, enemy1_objs, current_killed_enemy)
         current_goblinmage_killed = check_for_attack_collision(hero, RSWORDPARTICLES, +30, goblinmage1_objs, current_goblinmage_killed)
         check_for_attack_collision(hero, RSWORDPARTICLES, +30, smallgoblin1_objs, 0)
@@ -535,6 +573,11 @@ def hero_attack_sword(hero):
             draw_entity(goblinmage1, camera_x, camera_y)
         for (smallgoblin1) in smallgoblin1_objs:
             draw_entity(smallgoblin1, camera_x, camera_y)
+        if pause > 0:
+            draw_progress_bar_pause(pause, 150)
+            pass
+        else:
+            draw_progress_bar_round(current_killed_enemy + current_goblinmage_killed, current_max_goblinmage+current_max_enemy)
         hero.draw_health_bar(DISPLAYSURF)
         draw_entity(hero,camera_x-10,camera_y) # draw hero
         pygame.display.update()# update display
@@ -552,6 +595,12 @@ def hero_attack_sword(hero):
             draw_entity(goblinmage1, camera_x, camera_y)
         for (smallgoblin1) in smallgoblin1_objs:
             draw_entity(smallgoblin1, camera_x, camera_y)
+        if pause > 0:
+            draw_progress_bar_pause(pause, 150)
+            pass
+        else:
+            draw_progress_bar_round(current_killed_enemy + current_goblinmage_killed, current_max_goblinmage+current_max_enemy)
+        hero.draw_health_bar(DISPLAYSURF)
         draw_entity(hero,camera_x-10,camera_y) # draw hero
         DISPLAYSURF.blit(LSWORDPARTICLES, particlesRect) # draw swordparticles
         pygame.display.update() # update display
@@ -578,6 +627,11 @@ def hero_attack_mage(hero):
                 draw_entity(goblinmage1, camera_x, camera_y)
             for (smallgoblin1) in smallgoblin1_objs:
                 draw_entity(smallgoblin1, camera_x, camera_y)
+            if pause > 0:
+                draw_progress_bar_pause(pause, 150)
+                pass
+            else:
+                draw_progress_bar_round(current_killed_enemy + current_goblinmage_killed, current_max_goblinmage+current_max_enemy)
             hero.draw_health_bar(DISPLAYSURF)
             draw_entity(hero,camera_x-10,camera_y) # draw hero
             pygame.display.update() # display update # time delay
@@ -594,6 +648,12 @@ def hero_attack_mage(hero):
                 draw_entity(goblinmage1, camera_x, camera_y)
             for (smallgoblin1) in smallgoblin1_objs:
                 draw_entity(smallgoblin1, camera_x, camera_y)
+            if pause > 0:
+                draw_progress_bar_pause(pause, 150)
+                pass
+            else:
+                draw_progress_bar_round(current_killed_enemy + current_goblinmage_killed, current_max_goblinmage+current_max_enemy)
+            hero.draw_health_bar(DISPLAYSURF)
             draw_entity(hero,camera_x-10,camera_y) # draw hero
             pygame.display.update()
             hero.image = hero.rimage_mage # change hero image back to normal
@@ -609,6 +669,11 @@ def hero_attack_mage(hero):
                 draw_entity(goblinmage1, camera_x, camera_y)
             for (smallgoblin1) in smallgoblin1_objs:
                 draw_entity(smallgoblin1, camera_x, camera_y)
+            if pause > 0:
+                draw_progress_bar_pause(pause, 150)
+                pass
+            else:
+                draw_progress_bar_round(current_killed_enemy + current_goblinmage_killed, current_max_goblinmage+current_max_enemy)
             hero.draw_health_bar(DISPLAYSURF)
             draw_entity(hero,camera_x-10,camera_y) # draw hero
             pygame.display.update() # display update# time delay
@@ -625,6 +690,12 @@ def hero_attack_mage(hero):
                 draw_entity(goblinmage1, camera_x, camera_y)
             for (smallgoblin1) in smallgoblin1_objs:
                 draw_entity(smallgoblin1, camera_x, camera_y)
+            if pause > 0:
+                draw_progress_bar_pause(pause, 150)
+                pass
+            else:
+                draw_progress_bar_round(current_killed_enemy + current_goblinmage_killed, current_max_goblinmage+current_max_enemy)
+            hero.draw_health_bar(DISPLAYSURF)
             draw_entity(hero,camera_x-10,camera_y)
             pygame.display.update()
             hero.image = hero.limage_mage # change hero image back to normal
@@ -722,7 +793,7 @@ def start_screen():
     #pygame.draw.rect(DISPLAYSURF,(128,128,128), (WINWIDTH//2-150, 50, 300,42))
     DISPLAYSURF.blit(start_new_game_surface,(WINWIDTH//2-110 + 5, 150 + 5))
 
-    button("   PLAY", WINWIDTH//2-81, 200,WHITE,(128,128,128), 140, 42)
+    button("   PLAY", WINWIDTH//2-81, 200,WHITE,(128,128,128), 145, 42)
     DISPLAYSURF.blit(MANUALIMG,(710,525))
     while no_key_pressed:
         pygame.display.update()  
@@ -734,9 +805,9 @@ def start_screen():
                 mouse_y = pygame.mouse.get_pos()[1]
                 
                 if (WINWIDTH//2-81 < mouse_x < WINWIDTH//2+59) and (200 < mouse_y < 242):
-                    button("   PLAY", WINWIDTH//2-81, 200,(128,128,128),WHITE, 140, 42)
+                    button("   PLAY", WINWIDTH//2-81, 200,(128,128,128),WHITE, 145, 42)
                 else:
-                    button("   PLAY", WINWIDTH//2-81, 200,WHITE,(128,128,128), 140, 42)
+                    button("   PLAY", WINWIDTH//2-81, 200,WHITE,(128,128,128), 145, 42)
             
             if event.type == MOUSEBUTTONUP:
                 mouse_x = pygame.mouse.get_pos()[0]

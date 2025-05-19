@@ -92,3 +92,22 @@ class Hero():
             self.fire_shot_charged = True
             self.spawn_time = current_time
         pass
+
+    def get_collision_hero_rect(self,camera_x,camera_y, moveDown, moveLeft, moveRight, moveUp, MOVERATE):
+        hero_width = self.image.get_width()
+        hero_height = self.image.get_height()
+        vertical = 0
+        horizontal = 0
+
+        if moveDown:
+            vertical += 2*MOVERATE
+        elif moveUp:
+            vertical -= 2*MOVERATE
+        if moveLeft:
+            horizontal += 2*MOVERATE
+        elif moveRight:
+            horizontal -= 2*MOVERATE
+
+
+        heroRect = pygame.Rect(self.position_x-camera_x - hero_width//2 + horizontal, self.position_y-camera_y-hero_height//2 + vertical, hero_width, hero_height)
+        return heroRect

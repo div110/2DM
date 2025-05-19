@@ -79,3 +79,9 @@ class Tree():
         treeRect = pygame.Rect(pos_X, pos_Y, self.width, self.height)
         return not active_areaRect.colliderect(treeRect)
     
+    def get_tree_rect(self,camera_x,camera_y):
+        tree_width = self.width
+        tree_height = self.height
+        treeRect = pygame.Rect(self.position_x-camera_x - tree_width//2, self.position_y-camera_y-tree_height//2, tree_width, tree_height)
+        return treeRect
+    
