@@ -14,6 +14,7 @@ from enemies_classes.wolf import Wolf
 from enemies_classes.boss import Boss
 from enemies_classes.magic_pillar import Magic_Pillar
 from fire_shot import Fire_Shot
+from enemies_classes.boss_bluefire_shot import Bluefire_Shot
 
 FPS = 30
 WINWIDTH = 4* 240
@@ -59,7 +60,7 @@ def main():
     global main_character, RHEROIMG, LHEROIMG, LENEMYIMG, RENEMYIMG, TREEIMG, treeimgheight, treeimgwidth,grass_tile_size, GRASSIMG, HEARTIMG, RBLACKHEARTIMG, LBLACKHEARTIMG
     global RSWORDPARTICLES, LSWORDPARTICLES, R2HEROIMG,L2HEROIMG, R3HEROIMG, L3HEROIMG, LGOBLINMAGEIMG, RGOBLINMAGEIMG, LSMALLGOBLINIMG, RSMALLGOBLINIMG
     global RWOLF, LWOLF, RHEROMAGEIMG, LHEROMAGEIMG, MANUALIMG, RHEROMAGEATTIMG, LHEROMAGEATTIMG, RMAGEPROJEKTIL, LMAGEPROJEKTIL, no_key_pressed
-    global BOSSIMG, BOSSBARIERIMG, BOSSPILLAR
+    global BOSSIMG, BOSSBARIERIMG, BOSSPILLAR, BOSSGRASSIMG, LBOSSPROJEKTIL,  RBOSSPROJEKTIL, GRASSIMG2
     
     #initialize pygame
     pygame.init()
@@ -118,6 +119,12 @@ def main():
     GRASSIMG = pygame.image.load('graphics/other_img/grass_v8.png') # load grass image
     GRASSIMG = pygame.transform.scale(GRASSIMG,(WINWIDTH,WINWIDTH))
 
+    GRASSIMG2 = pygame.image.load('graphics/other_img/grass_v8.png') # load grass image
+    GRASSIMG2 = pygame.transform.scale(GRASSIMG2,(WINWIDTH,WINWIDTH))
+
+    BOSSGRASSIMG = pygame.image.load('graphics/other_img/boss_stage_grass_v2.png')
+    BOSSGRASSIMG = pygame.transform.scale(BOSSGRASSIMG,(WINWIDTH,WINWIDTH))
+
     MANUALIMG = pygame.image.load('graphics/other_img/manual.png') # load manual image
     MANUALIMG = pygame.transform.scale(MANUALIMG,(250,200))
 
@@ -133,6 +140,11 @@ def main():
     RMAGEPROJEKTIL = pygame.transform.scale(RMAGEPROJEKTIL, (50,50) )
     LMAGEPROJEKTIL = pygame.transform.flip(RMAGEPROJEKTIL, True, False)
 
+    LBOSSPROJEKTIL = pygame.image.load('graphics/enemies_img/boss_fire_projectile_shot.png') # load fireshot projectile image
+    LBOSSPROJEKTIL = pygame.transform.scale(LBOSSPROJEKTIL, (200,200) )
+    RBOSSPROJEKTIL = pygame.transform.flip(LBOSSPROJEKTIL, True, False)
+
+
     RSWORDPARTICLES = pygame.image.load('graphics/hero_img/sword_particles.png') # load swordparticles image
     RSWORDPARTICLES = pygame.transform.scale(RSWORDPARTICLES, (120,180) )
     LSWORDPARTICLES = pygame.transform.flip(RSWORDPARTICLES, True, False)
@@ -143,7 +155,7 @@ def main():
     BOSSIMG = pygame.transform.scale(BOSSIMG,(300, 300))
 
     BOSSBARIERIMG = pygame.image.load('graphics/enemies_img/boss_with_barier.png') # load boss barier image
-    BOSSBARIERIMG = pygame.transform.scale(BOSSBARIERIMG,(300, 300))
+    BOSSBARIERIMG = pygame.transform.scale(BOSSBARIERIMG,(350, 350))
 
     BOSSPILLAR = pygame.image.load('graphics/enemies_img/boss_pilar.png') # load boss pillar img
     BOSSPILLAR = pygame.transform.scale(BOSSPILLAR,(120, 120))
@@ -153,6 +165,7 @@ def main():
     treeimgheight = TREEIMG.get_height()
     grass_tile_size = GRASSIMG.get_width()
 
+    
 
     no_key_pressed = True
     
@@ -164,7 +177,7 @@ def main():
 def run_game():
     """prepare game, reset game state, spawn objects, run game"""
     # initial values are set to defaul for easy reset
-    global FPSCLOCK, DISPLAYSURF, main_character, NUMSOFTREES, NUMSENEMY
+    global FPSCLOCK, DISPLAYSURF, main_character, NUMSOFTREES, NUMSENEMY, GRASSIMG
     global moveDown, moveLeft, moveRight, moveUp, camera_x, camera_y, attackKey
     global gameOverMode, winMode, immortalityMode, immortalityStartTime, trees_objs, enemy1, enemy1_objs, goblinmage1_objs, smallgoblin1_objs, fire_shot_objs
     global enemy_level_multiplayer, current_max_enemy, current_killed_enemy, current_max_goblinmage, current_goblinmage_killed, pause, boss_stage_unlocked
@@ -175,6 +188,7 @@ def run_game():
     gameOverMode = False        
     winMode = False     
 
+    GRASSIMG = GRASSIMG2
     # reset camera
     camera_x = 0
     camera_y = 0
@@ -929,17 +943,21 @@ def draw_progress_bar_pause(count, max):
 
 def boss_stage1():
     """boss stage - its not done yet"""
-    global demon_lord1, magic_pillars_obj, fire_shot_objs
+    global demon_lord1, magic_pillars_obj, fire_shot_objs,boss_fire_shot_objs, GRASSIMG
     immortalityMode = False
 
     fire_shot_objs = []
+    boss_fire_shot_objs = []
     # reset camera
     camera_x = 0
     camera_y = 0
 
     main_character.position_x = HALFWINWIDTH
     main_character.position_y = HALFWINHEIGHT
+    if main_character.weapon_mode == "sword":
+        main_character.change_equipment()
     
+    GRASSIMG = BOSSGRASSIMG
 
     # reset movement
     moveLeft = False
@@ -947,9 +965,9 @@ def boss_stage1():
     moveUp = False
     moveDown = False
     attackKey = False
-    demon_lord = Boss(BOSSIMG, BOSSBARIERIMG, 140, HALFWINHEIGHT, 200)
+    demon_lord = Boss(BOSSBARIERIMG, BOSSBARIERIMG, BOSSIMG, 140, HALFWINHEIGHT, 250, Bluefire_Shot, RBOSSPROJEKTIL)
     magic_pillar1 = Magic_Pillar(BOSSPILLAR, 100,100,25)
-    magic_pillar2 = Magic_Pillar(BOSSPILLAR, 250,200,25)
+    magic_pillar2 = Magic_Pillar(BOSSPILLAR, 250,180,25)
     magic_pillar3 = Magic_Pillar(BOSSPILLAR, 100,650,25)
     magic_pillar4 = Magic_Pillar(BOSSPILLAR, 200,600,25)
 
@@ -984,21 +1002,66 @@ def boss_stage1():
         draw_background()
 
         for (demon_lord2) in demon_lord1:
+            ##test to see demonlord hitbox
+            print(demon_lord2.current_health)
+            
+            if len(demon_lord2.projectile_objs) > 0:
+                boss_fire_shot_objs.append(demon_lord2.projectile_objs[0])
+                demon_lord2.projectile_objs = []
+
+            if len(magic_pillars_obj)==0:
+                demon_lord2.change_barrier_state()
+                magic_pillar1 = Magic_Pillar(BOSSPILLAR, 100,100,25)
+                magic_pillar2 = Magic_Pillar(BOSSPILLAR, 250,180,25)
+                magic_pillar3 = Magic_Pillar(BOSSPILLAR, 100,650,25)
+                magic_pillar4 = Magic_Pillar(BOSSPILLAR, 200,600,25)
+                magic_pillars_obj.append(magic_pillar1)
+                magic_pillars_obj.append(magic_pillar2)
+                magic_pillars_obj.append(magic_pillar3)
+                magic_pillars_obj.append(magic_pillar4)
+
+            demon_lord2.update()
             draw_entity(demon_lord2,camera_x, camera_y)
-            #print(demon_lord2.current_health)
 
         for (magic_pillar7) in magic_pillars_obj:
             draw_entity(magic_pillar7,camera_x, camera_y)
 
+        for (boss_magic_pillar7) in boss_fire_shot_objs:
+            draw_entity(boss_magic_pillar7,camera_x, camera_y)
+
         # draw player and health bar
-        draw_hero(main_character,camera_x,camera_y,attackKey)
+        boss_stage_draw_hero(main_character,camera_x,camera_y,attackKey)
         main_character.draw_health_bar(DISPLAYSURF)
 
         # check for collision between enemies and fireshot projectiles
         for (fireshot1) in fire_shot_objs:
             check_for_fire_shot_collision(main_character, fireshot1, fireshot1.image, demon_lord1)
             check_for_fire_shot_collision(main_character, fireshot1, fireshot1.image, magic_pillars_obj)
+            check_for_fire_shot_collision(main_character,fireshot1, fireshot1.image, boss_fire_shot_objs)
 
+        # moving, drawing on display and removing fireshots if it is outside of active area
+        for fire_shot1 in fire_shot_objs[:]:
+            for move in range(fire_shot1.difficulty):
+                if (fire_shot1.position_x < camera_x - 300 or
+                    fire_shot1.position_x > camera_x + WINWIDTH + 300 or
+                    fire_shot1.position_y < camera_y - 300 or
+                    fire_shot1.position_y > camera_y + WINHEIGHT + 300):
+                    fire_shot_objs.remove(fire_shot1)
+                    break
+                draw_entity(fire_shot1, camera_x, camera_y) # draw fireshot
+                fire_shot1.move() # move fireshot
+
+
+        for fire_shot1 in boss_fire_shot_objs[:]:
+            for move in range(fire_shot1.difficulty):
+                if (fire_shot1.position_x < camera_x - 300 or
+                    fire_shot1.position_x > camera_x + WINWIDTH + 300 or
+                    fire_shot1.position_y < camera_y - 300 or
+                    fire_shot1.position_y > camera_y + WINHEIGHT + 300):
+                    boss_fire_shot_objs.remove(fire_shot1)
+                    break
+                draw_entity(fire_shot1, camera_x, camera_y) # draw fireshot
+                fire_shot1.move(main_character.position_x,main_character.position_y) # move fireshot
         # event handling cycle
         for event in pygame.event.get():
             if event.type == QUIT: # end game and exit program if quitkey was pressed
@@ -1035,7 +1098,9 @@ def boss_stage1():
                 elif event.key == K_q: # starts attack
                     attackKey = True
                 elif event.key == K_e: # change weapon
-                    main_character.change_equipment()
+                    for (demon_lord2) in demon_lord1:
+                        demon_lord2.change_barrier_state()
+                        
 
             # stop players movement if keyup
             elif event.type == KEYUP:
@@ -1062,14 +1127,37 @@ def boss_stage1():
         #hero movement
         if hero_collision == False:
             moving_hero(main_character, moveLeft, moveRight, moveUp, moveDown) 
+            pass
         # camera movement
         moving_camera(main_character)
         # scheck for collision between player and enemies and apply damage on player
         check_for_damage()
         
+        if len(demon_lord1)==0:
+            game_over()
         #update display and time
         pygame.display.update()
         FPSCLOCK.tick(FPS)
+
+def boss_stage_hero_attack_mage(hero):
+    """boss stage- draw mage projektil attack animation on display and check for hits"""
+    if hero.fire_shot_charged: # check if fireshot attack is charged
+        if hero.image == hero.limage_mage: # shot projectile on left side
+            fire_shot_objs1 = hero.generate_fire_shot()# generate fireshot
+            fire_shot_objs.append(fire_shot_objs1) # transfer fireshot
+            draw_entity(fire_shot_objs1,camera_x,camera_y) # draw fireshot
+            pygame.display.update()
+            hero.image = hero.limage_mage # change hero image back to normal
+        pass
+
+def boss_stage_draw_hero(hero, camera_x, camera_y,attackKey):
+    """draw hero on screen and make attack animation if needed"""
+    heroRect = hero.image.get_rect() # gets hero rect
+    heroRect.center = (hero.position_x - camera_x, hero.position_y - camera_y) # move hero rect on right position
+    DISPLAYSURF.blit(hero.image, heroRect) # draw hero on display
+    if attackKey == True: # check if hero attacks
+            if hero.weapon_mode == "mage": #check if weapon equiped is magewand
+                boss_stage_hero_attack_mage(main_character) # make attack animation ,generate new fireshot projectile if its charged
 
 """run main if program gets executed"""
 if __name__ == '__main__':
