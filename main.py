@@ -44,6 +44,7 @@ MAXHEALTH = 20
 
 NUMSENEMY = 10
 NUMSGOBLINMAGE = 2
+NUMSWOLF = 1
 ENEMYMINSPEED = 3
 ENEMYMAXSPEED = 7
 DIRCHANGEFREQ = 2 # direction change frequency - ako casto sa enemy pohybuju nahodne do novej strany ??div110: netusim co to je
@@ -182,7 +183,7 @@ def run_game():
     # initial values are set to defaul for easy reset
     global FPSCLOCK, DISPLAYSURF, main_character, NUMSOFTREES, NUMSENEMY, GRASSIMG
     global moveDown, moveLeft, moveRight, moveUp, camera_x, camera_y, attackKey
-    global gameOverMode, winMode, immortalityMode, immortalityStartTime, trees_objs, enemy1, enemy1_objs, goblinmage1_objs, smallgoblin1_objs, fire_shot_objs
+    global gameOverMode, winMode, immortalityMode, immortalityStartTime, trees_objs, enemy1, enemy1_objs, goblinmage1_objs, smallgoblin1_objs, fire_shot_objs, wolf_objs
     global enemy_level_multiplayer, current_max_enemy, current_killed_enemy, current_max_goblinmage, current_goblinmage_killed, pause, boss_stage_unlocked
     
     #reset stats and time
@@ -201,6 +202,7 @@ def run_game():
     goblinmage1_objs = []
     smallgoblin1_objs = []
     fire_shot_objs = []
+    wolf_objs = []
 
     # creating a Player Character
     main_character = Hero(RHEROIMG, HALFWINWIDTH, HALFWINHEIGHT, STARTLEVEL, MAXHEALTH , HEARTIMG, RBLACKHEARTIMG, LBLACKHEARTIMG, RHEROMAGEIMG, LHEROMAGEIMG, LHEROIMG, Fire_Shot,
@@ -219,6 +221,7 @@ def run_game():
     enemy_level_multiplayer = 1.02
     current_max_enemy = NUMSENEMY
     current_max_goblinmage = NUMSGOBLINMAGE
+    current_max_wolf = NUMSWOLF
     current_killed_enemy = 0
     current_goblinmage_killed = 0
     pause = 0
@@ -235,9 +238,12 @@ def run_game():
         goblinmage1.get_random_position_off_screen(moveUp, moveDown, moveLeft, moveRight, MAXOFFSCREENPOS, WINWIDTH, WINHEIGHT)
         goblinmage1_objs.append(goblinmage1)
 
-    ##Adding wolf
-    ##wolf = Wolf(LWOLF, RWOLF, 0, 0, 1, 5)
-    ##wolf.get_random_position_off_screen(moveUp, moveDown, moveLeft, moveRight, MAXOFFSCREENPOS, WINWIDTH, WINHEIGHT)
+    #wolf enemy
+    for wolf in range(NUMSWOLF):
+        wolf = Wolf(LWOLF,RWOLF,0,0,1,5)
+        wolf.get_random_position_off_screen(moveUp, moveDown, moveLeft, moveRight, MAXOFFSCREENPOS, WINWIDTH, WINHEIGHT)
+        wolf_objs.append(wolf)
+
 
     #draw background
     #draw grass floor
@@ -316,6 +322,7 @@ def run_game():
                 goblinmage1.position_y += camera_y
                 goblinmage1_objs.append(goblinmage1)
 
+
         ## adding more objects
 
         # draw background
@@ -338,6 +345,11 @@ def run_game():
         for (enemy1) in enemy1_objs:
             draw_entity(enemy1, camera_x, camera_y)
             enemy1.move(main_character.position_x,main_character.position_y)
+
+        #draw wolf
+        for wolf in wolf_objs:
+            draw_entity(wolf, camera_x, camera_y)
+            wolf.move(main_character.position_x, main_character.position_y)
 
         ##draw_entity(wolf, camera_x, camera_y)
         ##wolf.move(main_character.position_x, main_character.position_y)
