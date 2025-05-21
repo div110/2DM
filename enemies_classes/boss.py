@@ -20,6 +20,7 @@ class Boss():
 
     def change_barrier_state(self):
         if self.image == self.image_barrier:
+            self.spawn_time = pygame.time.get_ticks()
             self.image = self.image_no_barrier
             self.barrier = False
         elif self.image == self.image_no_barrier:
@@ -44,7 +45,8 @@ class Boss():
         pass
 
     def attack(self):
-        projectile = self.Projectile_Class(self.Projectile_image,self.position_x,self.position_y,10,"right")
+        projectile_position_y = random.randint(self.position_y-250,self.position_y+250)
+        projectile = self.Projectile_Class(self.Projectile_image,self.position_x,projectile_position_y,10,"right")
         self.projectile_objs.append(projectile)
         pass
 
@@ -55,7 +57,7 @@ class Boss():
             self.spawn_time = current_time
             pass
         if not self.barier_break_time == None:
-            if current_time - self.spawn_time > self.barier_break_time:
+            if current_time - self.barier_break_time > self.barier_recharge:
                 self.change_barrier_state()
                 self.barier_break_time = None
             pass

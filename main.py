@@ -60,7 +60,7 @@ def main():
     global main_character, RHEROIMG, LHEROIMG, LENEMYIMG, RENEMYIMG, TREEIMG, treeimgheight, treeimgwidth,grass_tile_size, GRASSIMG, HEARTIMG, RBLACKHEARTIMG, LBLACKHEARTIMG
     global RSWORDPARTICLES, LSWORDPARTICLES, R2HEROIMG,L2HEROIMG, R3HEROIMG, L3HEROIMG, LGOBLINMAGEIMG, RGOBLINMAGEIMG, LSMALLGOBLINIMG, RSMALLGOBLINIMG
     global RWOLF, LWOLF, RHEROMAGEIMG, LHEROMAGEIMG, MANUALIMG, RHEROMAGEATTIMG, LHEROMAGEATTIMG, RMAGEPROJEKTIL, LMAGEPROJEKTIL, no_key_pressed
-    global BOSSIMG, BOSSBARIERIMG, BOSSPILLAR, BOSSGRASSIMG, LBOSSPROJEKTIL,  RBOSSPROJEKTIL, GRASSIMG2
+    global BOSSIMG, BOSSBARIERIMG, BOSSPILLAR, BOSSGRASSIMG, LBOSSPROJEKTIL,  RBOSSPROJEKTIL, GRASSIMG2, BOSSSTAGELOADIMG
     
     #initialize pygame
     pygame.init()
@@ -124,6 +124,9 @@ def main():
 
     BOSSGRASSIMG = pygame.image.load('graphics/other_img/boss_stage_grass_v2.png')
     BOSSGRASSIMG = pygame.transform.scale(BOSSGRASSIMG,(WINWIDTH,WINWIDTH))
+
+    BOSSSTAGELOADIMG = pygame.image.load('graphics/other_img/loading_boss_stage_img.png')
+    BOSSSTAGELOADIMG = pygame.transform.scale(BOSSSTAGELOADIMG,(WINWIDTH,WINWIDTH))
 
     MANUALIMG = pygame.image.load('graphics/other_img/manual.png') # load manual image
     MANUALIMG = pygame.transform.scale(MANUALIMG,(250,200))
@@ -219,6 +222,7 @@ def run_game():
     current_killed_enemy = 0
     current_goblinmage_killed = 0
     pause = 0
+    NOHITTIME = 0.15
     # spawn initial enemies
     # basic enemy enemy
     for enemy1 in range(NUMSENEMY):
@@ -476,7 +480,28 @@ def run_game():
         pygame.display.update()
         FPSCLOCK.tick(FPS)
 
+        #check for teleport to boss_stage
+        if main_character.level == 1:
+            boss_stage_unlocked = True
         if boss_stage_unlocked == True:
+            start_x = -camera_x % grass_tile_size - grass_tile_size
+            start_y = -camera_y % grass_tile_size - grass_tile_size
+            text_surface = BASICFONT.render("Transfering to Boss stage",False,WHITE)
+            DISPLAYSURF.blit(text_surface,(250,50))
+            pygame.display.update()
+            pygame.time.wait(2000)
+            for x in range(start_x, WINWIDTH + grass_tile_size, grass_tile_size):
+                for y in range(start_y, WINHEIGHT + grass_tile_size, grass_tile_size):
+                    DISPLAYSURF.blit(BOSSSTAGELOADIMG, (x, y))
+            main_character.position_x = HALFWINWIDTH
+            main_character.position_y = HALFWINHEIGHT
+            if main_character.weapon_mode == "sword":
+                main_character.change_equipment()
+            draw_hero(main_character,camera_x,camera_y, attackKey=False)
+            text_surface = BASICFONT.render("Transfering to Boss stage",False,WHITE)
+            DISPLAYSURF.blit(text_surface,(250,50))
+            pygame.display.update()
+            pygame.time.wait(2000)
             enemy1_objs = []
             goblinmage1_objs = []
             smallgoblin1_objs = []
@@ -944,7 +969,9 @@ def draw_progress_bar_pause(count, max):
 def boss_stage1():
     """boss stage - its not done yet"""
     global demon_lord1, magic_pillars_obj, fire_shot_objs,boss_fire_shot_objs, GRASSIMG
+    global immortalityMode
     immortalityMode = False
+    NOHITTIME = 0.25
 
     fire_shot_objs = []
     boss_fire_shot_objs = []
@@ -1131,7 +1158,7 @@ def boss_stage1():
         # camera movement
         moving_camera(main_character)
         # scheck for collision between player and enemies and apply damage on player
-        check_for_damage()
+        boss_stage_check_for_damage()
         
         if len(demon_lord1)==0:
             game_over()
@@ -1158,6 +1185,23 @@ def boss_stage_draw_hero(hero, camera_x, camera_y,attackKey):
     if attackKey == True: # check if hero attacks
             if hero.weapon_mode == "mage": #check if weapon equiped is magewand
                 boss_stage_hero_attack_mage(main_character) # make attack animation ,generate new fireshot projectile if its charged
+
+def boss_stage_check_for_damage():
+    """check for collision between hero and enemy and apply damage"""
+    global immortalityStartTime, immortalityMode
+    if immortalityMode == True: # if player have immortality mode damage does not apply on him
+        return
+    heroRect = main_character.get_hero_hitbox(camera_x, camera_y) # gets hero rect
+    #check for collision between basic enemies and hero
+    for (blue_fire_shot1) in boss_fire_shot_objs:
+        enemyRect = blue_fire_shot1.get_enemy_attackbox(camera_x,camera_y) # gets enemy rect
+        if heroRect.colliderect(enemyRect):
+            main_character.current_health -= 1 # apply damage on player
+            if main_character.is_alive() == False: # turn game over if hero health gets to zero
+               game_over() 
+            immortalityStartTime = time.time() # if player gets hit he gets 0.2 second immortality
+            immortalityMode = True
+            break
 
 """run main if program gets executed"""
 if __name__ == '__main__':
