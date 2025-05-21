@@ -21,7 +21,6 @@ class Wolf():
             
 
         if self.counter % 50 == 0:
-            print("uuu")
             self.counter += 1
             #Gets direction to the player
             self.vector = [(player_x - self.position_x),(player_y - self.position_y)]
