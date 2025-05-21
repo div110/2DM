@@ -620,7 +620,7 @@ def hero_attack_sword(hero):
             draw_progress_bar_pause(pause, 150)
             pass
         else:
-            draw_progress_bar_round(current_killed_enemy + current_goblinmage_killed, current_max_goblinmage+current_max_enemy)
+            draw_progress_bar_round(current_killed_enemy + current_goblinmage_killed + current_wolf_killed, current_max_goblinmage+current_max_enemy+ current_max_wolf)
         hero.draw_health_bar(DISPLAYSURF)
         draw_entity(hero,camera_x-10,camera_y) # draw hero
         pygame.display.update() # update display
@@ -644,7 +644,7 @@ def hero_attack_sword(hero):
             draw_progress_bar_pause(pause, 150)
             pass
         else:
-            draw_progress_bar_round(current_killed_enemy + current_goblinmage_killed, current_max_goblinmage+current_max_enemy)
+            draw_progress_bar_round(current_killed_enemy + current_goblinmage_killed + current_wolf_killed, current_max_goblinmage+current_max_enemy+ current_max_wolf)
         hero.draw_health_bar(DISPLAYSURF)
         draw_entity(hero,camera_x-10,camera_y) # draw hero
         DISPLAYSURF.blit(RSWORDPARTICLES, particlesRect) # draw swordparticles
@@ -674,7 +674,7 @@ def hero_attack_sword(hero):
             draw_progress_bar_pause(pause, 150)
             pass
         else:
-            draw_progress_bar_round(current_killed_enemy + current_goblinmage_killed, current_max_goblinmage+current_max_enemy)
+            draw_progress_bar_round(current_killed_enemy + current_goblinmage_killed + current_wolf_killed, current_max_goblinmage+current_max_enemy+ current_max_wolf)
         hero.draw_health_bar(DISPLAYSURF)
         draw_entity(hero,camera_x-10,camera_y) # draw hero
         pygame.display.update()# update display
@@ -698,7 +698,7 @@ def hero_attack_sword(hero):
             draw_progress_bar_pause(pause, 150)
             pass
         else:
-            draw_progress_bar_round(current_killed_enemy + current_goblinmage_killed, current_max_goblinmage+current_max_enemy)
+            draw_progress_bar_round(current_killed_enemy + current_goblinmage_killed + current_wolf_killed, current_max_goblinmage+current_max_enemy+ current_max_wolf)
         hero.draw_health_bar(DISPLAYSURF)
         draw_entity(hero,camera_x-10,camera_y) # draw hero
         DISPLAYSURF.blit(LSWORDPARTICLES, particlesRect) # draw swordparticles
@@ -733,7 +733,7 @@ def hero_attack_mage(hero):
                 draw_progress_bar_pause(pause, 150)
                 pass
             else:
-                draw_progress_bar_round(current_killed_enemy + current_goblinmage_killed, current_max_goblinmage+current_max_enemy)
+                draw_progress_bar_round(current_killed_enemy + current_goblinmage_killed + current_wolf_killed, current_max_goblinmage+current_max_enemy+ current_max_wolf)
             hero.draw_health_bar(DISPLAYSURF)
             draw_entity(hero,camera_x-10,camera_y) # draw hero
             pygame.display.update() # display update # time delay
@@ -756,7 +756,7 @@ def hero_attack_mage(hero):
                 draw_progress_bar_pause(pause, 150)
                 pass
             else:
-                draw_progress_bar_round(current_killed_enemy + current_goblinmage_killed, current_max_goblinmage+current_max_enemy)
+                draw_progress_bar_round(current_killed_enemy + current_goblinmage_killed + current_wolf_killed, current_max_goblinmage+current_max_enemy+ current_max_wolf)
             hero.draw_health_bar(DISPLAYSURF)
             draw_entity(hero,camera_x-10,camera_y) # draw hero
             pygame.display.update()
@@ -779,7 +779,7 @@ def hero_attack_mage(hero):
                 draw_progress_bar_pause(pause, 150)
                 pass
             else:
-                draw_progress_bar_round(current_killed_enemy + current_goblinmage_killed, current_max_goblinmage+current_max_enemy)
+                draw_progress_bar_round(current_killed_enemy + current_goblinmage_killed + current_wolf_killed, current_max_goblinmage+current_max_enemy+ current_max_wolf)
             hero.draw_health_bar(DISPLAYSURF)
             draw_entity(hero,camera_x-10,camera_y) # draw hero
             pygame.display.update() # display update# time delay
@@ -802,7 +802,7 @@ def hero_attack_mage(hero):
                 draw_progress_bar_pause(pause, 150)
                 pass
             else:
-                draw_progress_bar_round(current_killed_enemy + current_goblinmage_killed, current_max_goblinmage+current_max_enemy)
+                draw_progress_bar_round(current_killed_enemy + current_goblinmage_killed + current_wolf_killed, current_max_goblinmage+current_max_enemy+ current_max_wolf)
             hero.draw_health_bar(DISPLAYSURF)
             draw_entity(hero,camera_x-10,camera_y)
             pygame.display.update()
