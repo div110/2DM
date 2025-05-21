@@ -185,6 +185,7 @@ def run_game():
     global moveDown, moveLeft, moveRight, moveUp, camera_x, camera_y, attackKey
     global gameOverMode, winMode, immortalityMode, immortalityStartTime, trees_objs, enemy1, enemy1_objs, goblinmage1_objs, smallgoblin1_objs, fire_shot_objs, wolf_objs
     global enemy_level_multiplayer, current_max_enemy, current_killed_enemy, current_max_goblinmage, current_goblinmage_killed, pause, boss_stage_unlocked
+    global current_max_wolf, current_wolf_killed
     
     #reset stats and time
     immortalityMode = False
@@ -224,6 +225,7 @@ def run_game():
     current_max_wolf = NUMSWOLF
     current_killed_enemy = 0
     current_goblinmage_killed = 0
+    current_wolf_killed = 0
     pause = 0
     NOHITTIME = 0.15
     # spawn initial enemies
@@ -322,6 +324,13 @@ def run_game():
                 goblinmage1.position_y += camera_y
                 goblinmage1_objs.append(goblinmage1)
 
+            while len(wolf_objs) < current_max_wolf and len(wolf_objs) < (current_max_wolf - current_wolf_killed):
+                wolf1=  Wolf(LWOLF,RWOLF,0,0,1,5)
+                wolf1.get_random_position_off_screen(moveUp, moveDown, moveLeft, moveRight, MAXOFFSCREENPOS, WINWIDTH, WINHEIGHT)
+                wolf1.position_x += camera_x
+                wolf1.position_y += camera_y
+                wolf_objs.append(wolf1)
+
 
         ## adding more objects
 
@@ -340,6 +349,7 @@ def run_game():
             current_killed_enemy = check_for_fire_shot_collision(main_character, fireshot1, fireshot1.image,enemy1_objs, current_killed_enemy)
             check_for_fire_shot_collision(main_character, fireshot1, fireshot1.image,smallgoblin1_objs)
             current_goblinmage_killed = check_for_fire_shot_collision(main_character, fireshot1, fireshot1.image,goblinmage1_objs, current_goblinmage_killed)
+            current_wolf_killed = check_for_fire_shot_collision(main_character, fireshot1, fireshot1.image,wolf_objs, current_wolf_killed)
 
         #draw basic enemie
         for (enemy1) in enemy1_objs:
@@ -419,8 +429,11 @@ def run_game():
                     attackKey = True
                 elif event.key == K_e: # change weapon
                     main_character.change_equipment()
-                elif event.key == K_m: # change weapon
+                elif event.key == K_m: # boss stage
                     boss_stage_unlocked = True
+                elif event.key == K_p: # boss stage
+                    pause_screen()
+                
 
             # stop players movement if keyup
             elif event.type == KEYUP:
@@ -472,12 +485,14 @@ def run_game():
         check_for_damage()
 
         ## check if player kill wave and calculate new nums of enemies in new wave
-        if(current_killed_enemy >= current_max_enemy) and (current_goblinmage_killed >= current_max_goblinmage):
+        if(current_killed_enemy >= current_max_enemy) and (current_goblinmage_killed >= current_max_goblinmage) and (current_wolf_killed >= current_max_wolf):
             pause = 150
             current_killed_enemy = 0
             current_goblinmage_killed = 0
+            current_wolf_killed = 0
             current_max_enemy = round(NUMSENEMY * (enemy_level_multiplayer**(main_character.level)))
             current_max_goblinmage = round(NUMSGOBLINMAGE * (enemy_level_multiplayer**(main_character.level)))
+            current_max_wolf = round(NUMSWOLF * (enemy_level_multiplayer**(main_character.level)))
             main_character.level += 1
         
         if pause > 0:
@@ -485,7 +500,7 @@ def run_game():
             draw_progress_bar_pause(pause, 150)
             pass
         else:
-            draw_progress_bar_round(current_killed_enemy + current_goblinmage_killed, current_max_goblinmage+current_max_enemy)
+            draw_progress_bar_round(current_killed_enemy + current_goblinmage_killed +current_wolf_killed, current_max_goblinmage+current_max_enemy+current_max_wolf)
             
             
         #update display and time
@@ -522,7 +537,6 @@ def run_game():
 
             boss_stage1()
     
-
 def terminate():
     """quit pygame and exit the program"""
     pygame.quit()
@@ -544,7 +558,6 @@ def draw_hero(hero, camera_x, camera_y,attackKey):
                 hero_attack_sword(main_character) # make attack animation ,generate attack and check for colision between enemy and attack
             elif hero.weapon_mode == "mage": #check if weapon equiped is magewand
                 hero_attack_mage(main_character) # make attack animation ,generate new fireshot projectile if its charged
-
 
 def moving_hero(hero, moveLeft, moveRight, moveUp, moveDown):
     """move hero and adjust camera"""
@@ -589,7 +602,7 @@ def generate_new_tree():
 
 def hero_attack_sword(hero):
     """draw sword attack animation on display and check for hits"""
-    global current_killed_enemy, current_goblinmage_killed
+    global current_killed_enemy, current_goblinmage_killed, current_wolf_killed
     if hero.image == hero.rimage_sword: # attack on right side
         hero.image = R2HEROIMG # change hero image to attacking image
         # draw backgroung, enemies, objects, healtbarddd
@@ -601,6 +614,8 @@ def hero_attack_sword(hero):
             draw_entity(goblinmage1, camera_x, camera_y)
         for (smallgoblin1) in smallgoblin1_objs:
             draw_entity(smallgoblin1, camera_x, camera_y)
+        for (wolf1) in wolf_objs:
+            draw_entity(wolf1,camera_x, camera_y)
         if pause > 0:
             draw_progress_bar_pause(pause, 150)
             pass
@@ -623,6 +638,8 @@ def hero_attack_sword(hero):
             draw_entity(goblinmage1, camera_x, camera_y)
         for (smallgoblin1) in smallgoblin1_objs:
             draw_entity(smallgoblin1, camera_x, camera_y)
+        for (wolf1) in wolf_objs:
+            draw_entity(wolf1,camera_x, camera_y)
         if pause > 0:
             draw_progress_bar_pause(pause, 150)
             pass
@@ -637,6 +654,7 @@ def hero_attack_sword(hero):
         current_killed_enemy = check_for_attack_collision(hero, RSWORDPARTICLES, +30, enemy1_objs, current_killed_enemy)
         current_goblinmage_killed = check_for_attack_collision(hero, RSWORDPARTICLES, +30, goblinmage1_objs, current_goblinmage_killed)
         check_for_attack_collision(hero, RSWORDPARTICLES, +30, smallgoblin1_objs, 0)
+        current_wolf_killed = check_for_attack_collision(hero, RSWORDPARTICLES, -30, wolf_objs, current_wolf_killed)
                 
 
     if hero.image == hero.limage_sword: # attack on left side
@@ -650,6 +668,8 @@ def hero_attack_sword(hero):
             draw_entity(goblinmage1, camera_x, camera_y)
         for (smallgoblin1) in smallgoblin1_objs:
             draw_entity(smallgoblin1, camera_x, camera_y)
+        for (wolf1) in wolf_objs:
+            draw_entity(wolf1,camera_x, camera_y)
         if pause > 0:
             draw_progress_bar_pause(pause, 150)
             pass
@@ -672,6 +692,8 @@ def hero_attack_sword(hero):
             draw_entity(goblinmage1, camera_x, camera_y)
         for (smallgoblin1) in smallgoblin1_objs:
             draw_entity(smallgoblin1, camera_x, camera_y)
+        for (wolf1) in wolf_objs:
+            draw_entity(wolf1,camera_x, camera_y)
         if pause > 0:
             draw_progress_bar_pause(pause, 150)
             pass
@@ -686,6 +708,7 @@ def hero_attack_sword(hero):
         current_killed_enemy = check_for_attack_collision(hero, LSWORDPARTICLES, -30, enemy1_objs, current_killed_enemy)
         current_goblinmage_killed = check_for_attack_collision(hero, LSWORDPARTICLES, -30, goblinmage1_objs, current_goblinmage_killed)
         check_for_attack_collision(hero, RSWORDPARTICLES, -30, smallgoblin1_objs, 0)
+        current_wolf_killed = check_for_attack_collision(hero, RSWORDPARTICLES, -30, wolf_objs, current_wolf_killed)
 
         
     pass
@@ -704,6 +727,8 @@ def hero_attack_mage(hero):
                 draw_entity(goblinmage1, camera_x, camera_y)
             for (smallgoblin1) in smallgoblin1_objs:
                 draw_entity(smallgoblin1, camera_x, camera_y)
+            for (wolf1) in wolf_objs:
+                draw_entity(wolf1,camera_x, camera_y)
             if pause > 0:
                 draw_progress_bar_pause(pause, 150)
                 pass
@@ -725,6 +750,8 @@ def hero_attack_mage(hero):
                 draw_entity(goblinmage1, camera_x, camera_y)
             for (smallgoblin1) in smallgoblin1_objs:
                 draw_entity(smallgoblin1, camera_x, camera_y)
+            for (wolf1) in wolf_objs:
+                draw_entity(wolf1,camera_x, camera_y)
             if pause > 0:
                 draw_progress_bar_pause(pause, 150)
                 pass
@@ -746,6 +773,8 @@ def hero_attack_mage(hero):
                 draw_entity(goblinmage1, camera_x, camera_y)
             for (smallgoblin1) in smallgoblin1_objs:
                 draw_entity(smallgoblin1, camera_x, camera_y)
+            for (wolf1) in wolf_objs:
+                draw_entity(wolf1,camera_x, camera_y)
             if pause > 0:
                 draw_progress_bar_pause(pause, 150)
                 pass
@@ -767,6 +796,8 @@ def hero_attack_mage(hero):
                 draw_entity(goblinmage1, camera_x, camera_y)
             for (smallgoblin1) in smallgoblin1_objs:
                 draw_entity(smallgoblin1, camera_x, camera_y)
+            for (wolf1) in wolf_objs:
+                draw_entity(wolf1,camera_x, camera_y)
             if pause > 0:
                 draw_progress_bar_pause(pause, 150)
                 pass
@@ -859,9 +890,20 @@ def check_for_damage():
             immortalityStartTime = time.time() # if player gets hit he gets 0.2 second immortality
             immortalityMode = True
             return
-    
+    for (wolf1) in wolf_objs:
+        enemyRect = wolf1.get_enemy_attackbox(camera_x,camera_y) # gets enemy rect
+        if heroRect.colliderect(enemyRect):
+            main_character.current_health -= 1 # apply damage on player
+            if main_character.is_alive() == False:  # turn game over if hero health gets to zero
+               game_over() 
+            immortalityStartTime = time.time() # if player gets hit he gets 0.2 second immortality
+            immortalityMode = True
+            return
+   
 def start_screen():
+    """shows game start screen"""
     global no_key_pressed
+    global moveRight, moveLeft, moveUp, moveDown
 
     start_new_game_surface = BASICFONT.render("START",False, WHITE)
     #pygame.draw.rect(DISPLAYSURF,(128,128,128), (WINWIDTH//2-150, 0, 300,42))
@@ -894,17 +936,107 @@ def start_screen():
             if event.type == KEYDOWN:
                 if event.key in (K_UP, K_w):
                     no_key_pressed = False
+                    moveUp = True
                 elif event.key in (K_DOWN, K_s):
                     no_key_pressed = False
+                    moveDown = True
                 elif event.key in (K_LEFT, K_a):
                     no_key_pressed = False
+                    moveRight = False
+                    moveLeft = True
+                    #flipping the player left
+                    if main_character.image == RHEROIMG:
+                        main_character.image = LHEROIMG
+                        main_character.direction = "left"
+                    if main_character.image == RHEROMAGEIMG:
+                        main_character.image = LHEROMAGEIMG
+                        main_character.direction = "left"
                 elif event.key in (K_RIGHT, K_d):
                     no_key_pressed = False
+                    moveLeft = False
+                    moveRight = True
+                    #flipping the player right
+                    if main_character.image == LHEROIMG:
+                        main_character.image = RHEROIMG
+                        main_character.direction = "right"
+                    if main_character.image == LHEROMAGEIMG:
+                        main_character.image = RHEROMAGEIMG
+                        main_character.direction = "right"
                 elif event.key == K_q:
                     no_key_pressed = False
                 elif event.key == K_e:
                     no_key_pressed = False
 
+
+    pass
+
+def pause_screen():
+    """shows game pause screen"""
+    global no_key_pressed
+    no_key_pressed = True
+    global moveDown, moveLeft, moveRight, moveUp
+    global attackKey
+    attackKey = False
+
+    #pause_game_surface = BASICFONT.render("PAUSE",False, WHITE)
+    #pygame.draw.rect(DISPLAYSURF,(128,128,128), (WINWIDTH//2-150, 0, 300,42))
+    #DISPLAYSURF.blit(pause_game_surface,(WINWIDTH//2-65 + 5, 110 + 5))
+
+
+    button("   PLAY", WINWIDTH//2-81, 200,WHITE,(128,128,128), 145, 42)
+    DISPLAYSURF.blit(MANUALIMG,(710,525))
+    while no_key_pressed:
+        pygame.display.update()  
+        for event in pygame.event.get():
+            if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
+                terminate()
+            if event.type == MOUSEMOTION:
+                mouse_x = pygame.mouse.get_pos()[0]
+                mouse_y = pygame.mouse.get_pos()[1]
+                
+                if (WINWIDTH//2-81 < mouse_x < WINWIDTH//2+59) and (200 < mouse_y < 242):
+                    button("   PLAY", WINWIDTH//2-81, 200,(128,128,128),WHITE, 145, 42)
+                else:
+                    button("   PLAY", WINWIDTH//2-81, 200,WHITE,(128,128,128), 145, 42)
+            
+            if event.type == MOUSEBUTTONUP:
+                mouse_x = pygame.mouse.get_pos()[0]
+                mouse_y = pygame.mouse.get_pos()[1]
+                if (WINWIDTH//2-81 < mouse_x < WINWIDTH//2+59) and (200 < mouse_y < 242):
+                    no_key_pressed = False
+            if event.type == KEYDOWN:
+                if event.key in (K_UP, K_w):
+                    no_key_pressed = False
+                    moveUp = True
+                elif event.key in (K_DOWN, K_s):
+                    no_key_pressed = False
+                    moveDown = True
+                elif event.key in (K_LEFT, K_a):
+                    no_key_pressed = False
+                    moveRight = False
+                    moveLeft = True
+                    #flipping the player left
+                    if main_character.image == RHEROIMG:
+                        main_character.image = LHEROIMG
+                        main_character.direction = "left"
+                    if main_character.image == RHEROMAGEIMG:
+                        main_character.image = LHEROMAGEIMG
+                        main_character.direction = "left"
+                elif event.key in (K_RIGHT, K_d):
+                    no_key_pressed = False
+                    moveLeft = False
+                    moveRight = True
+                    #flipping the player right
+                    if main_character.image == LHEROIMG:
+                        main_character.image = RHEROIMG
+                        main_character.direction = "right"
+                    if main_character.image == LHEROMAGEIMG:
+                        main_character.image = RHEROMAGEIMG
+                        main_character.direction = "right"
+                elif event.key == K_q:
+                    no_key_pressed = False
+                elif event.key == K_e:
+                    no_key_pressed = False
 
     pass
 
@@ -960,8 +1092,7 @@ def game_over():
                     return
                 elif (960-450 < mouse_x < 940-288) and (550 < mouse_y < 592):
                     terminate()
-
-    
+ 
 def button(text, position_x, position_y, COLOR, BACKGROUND, width, height):
     """draw button with text and ability to click on"""
     try_again_surface = BASICFONT.render(text,False, COLOR)
@@ -1042,7 +1173,6 @@ def boss_stage1():
 
         for (demon_lord2) in demon_lord1:
             ##test to see demonlord hitbox
-            print(demon_lord2.current_health)
             
             if len(demon_lord2.projectile_objs) > 0:
                 boss_fire_shot_objs.append(demon_lord2.projectile_objs[0])
@@ -1136,9 +1266,8 @@ def boss_stage1():
                         main_character.direction = "right"
                 elif event.key == K_q: # starts attack
                     attackKey = True
-                elif event.key == K_e: # change weapon
-                    for (demon_lord2) in demon_lord1:
-                        demon_lord2.change_barrier_state()
+                elif event.key == K_p:
+                    pause_screen()
                         
 
             # stop players movement if keyup
