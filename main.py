@@ -493,7 +493,7 @@ def run_game():
         FPSCLOCK.tick(FPS)
 
         #check for teleport to boss_stage
-        if main_character.level == 1:
+        if main_character.level == 5:
             boss_stage_unlocked = True
         if boss_stage_unlocked == True:
             start_x = -camera_x % grass_tile_size - grass_tile_size
