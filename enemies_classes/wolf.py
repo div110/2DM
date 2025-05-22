@@ -1,7 +1,7 @@
 import random, pygame
 
 class Wolf():
-    def __init__(self, left_image, right_image,position_x, position_y, speed, max_health):
+    def __init__(self, left_image, right_image, running_left_image, running_right_image, position_x, position_y, speed, max_health):
         self.position_x : int = position_x
         self.position_y : int = position_y
         self.speed : int = 20 * speed 
@@ -10,6 +10,8 @@ class Wolf():
         self.image : str = left_image 
         self.left_image = left_image
         self.right_image = right_image
+        self.running_left_image = running_left_image
+        self.running_right_image = running_right_image
         self.knockback = 150
         self.counter = 0
         self.vector = [0,0] 
@@ -43,9 +45,14 @@ class Wolf():
        
         #switch image
         if self.vector[0] > 0:
-            self.image = self.right_image
+            self.image = self.running_right_image
+        elif self.vector[0] < 0:
+            self.image = self.running_left_image
         else:
-            self.image = self.left_image
+            if self.image == self.running_right_image:
+                self.image = self.right_image
+            elif self.image == self.running_left_image:
+                self.image = self.left_image
 
         pass
 

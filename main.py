@@ -60,7 +60,7 @@ def main():
     global FPSCLOCK, DISPLAYSURF, BASICFONT, BASICFONTLARGE, NUMSOFTREES
     global main_character, RHEROIMG, LHEROIMG, LENEMYIMG, RENEMYIMG, TREEIMG, treeimgheight, treeimgwidth,grass_tile_size, GRASSIMG, HEARTIMG, RBLACKHEARTIMG, LBLACKHEARTIMG
     global RSWORDPARTICLES, LSWORDPARTICLES, R2HEROIMG,L2HEROIMG, R3HEROIMG, L3HEROIMG, LGOBLINMAGEIMG, RGOBLINMAGEIMG, LSMALLGOBLINIMG, RSMALLGOBLINIMG
-    global RWOLF, LWOLF, RHEROMAGEIMG, LHEROMAGEIMG, MANUALIMG, RHEROMAGEATTIMG, LHEROMAGEATTIMG, RMAGEPROJEKTIL, LMAGEPROJEKTIL, no_key_pressed
+    global RWOLF, LWOLF, RUNRWOLF, RUNLWOLF, RHEROMAGEIMG, LHEROMAGEIMG, MANUALIMG, RHEROMAGEATTIMG, LHEROMAGEATTIMG, RMAGEPROJEKTIL, LMAGEPROJEKTIL, no_key_pressed
     global BOSSIMG, BOSSBARIERIMG, BOSSPILLAR, BOSSGRASSIMG, LBOSSPROJEKTIL,  RBOSSPROJEKTIL, GRASSIMG2, BOSSSTAGELOADIMG
     
     #initialize pygame
@@ -111,6 +111,9 @@ def main():
     RWOLF = pygame.image.load('graphics/enemies_img/wolf.png') # load wolf image
     RWOLF = pygame.transform.scale(RWOLF,(100,100))
     LWOLF = pygame.transform.flip(RWOLF,True,False)
+    RUNRWOLF = pygame.image.load('graphics/other_img/ker2david.png')
+    RUNRWOLF = pygame.transform.scale(RUNRWOLF,(100,100))
+    RUNLWOLF = pygame.transform.flip(RUNRWOLF,True,False)
 
     #objs imgs
     TREEIMG = pygame.image.load('graphics/other_img/tree_v2.png') # load tree image
@@ -242,7 +245,7 @@ def run_game():
 
     #wolf enemy
     for wolf in range(NUMSWOLF):
-        wolf = Wolf(LWOLF,RWOLF,0,0,1,5)
+        wolf = Wolf(LWOLF,RWOLF,RUNLWOLF,RUNRWOLF,0,0,1,5)
         wolf.get_random_position_off_screen(moveUp, moveDown, moveLeft, moveRight, MAXOFFSCREENPOS, WINWIDTH, WINHEIGHT)
         wolf_objs.append(wolf)
 
