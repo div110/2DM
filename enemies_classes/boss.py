@@ -49,7 +49,7 @@ class Boss():
         pass
 
     def attack(self):
-        random_choice = random.randint(0,1)
+        random_choice = random.randint(0,2)
         if random_choice == 0:
             projectile_position_y = random.randint(self.position_y-250,self.position_y+250)
             projectile = self.Projectile_Class(self.Projectile_image,self.position_x,projectile_position_y,10,"right")

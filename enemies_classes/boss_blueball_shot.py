@@ -20,6 +20,8 @@ class Blueball_Shot():
         """Moves the enemy in the direction of the player
             The difficulty solution is NOT Final
         """
+        if self.image == self.destroyed_image:
+            return
             
         #Gets direction to the player
         move_vector = [(player_x - self.position_x),(player_y - self.position_y)]

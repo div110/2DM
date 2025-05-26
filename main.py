@@ -23,7 +23,6 @@ WINHEIGHT = 3* 240
 HALFWINWIDTH = int(WINWIDTH / 2)
 HALFWINHEIGHT = int(WINHEIGHT / 2)
 
-
 # Colors
 BGCOLOR = (25, 255, 0)
 WHITE = (255, 255, 255)
@@ -53,8 +52,6 @@ ENEMYHEALTH = 1
 
 NUMSOFTREES = 3 
 MAXOFFSCREENPOS = 200 # max distance (in pixels??) of a object
-
-
 
 def main():
     """initialize pygame, load images, start the game loop"""
@@ -158,11 +155,11 @@ def main():
     RBOSSPROJEKTIL = pygame.transform.flip(LBOSSPROJEKTIL, True, False)
 
     LBOSSPROJEKTILBALL = pygame.image.load('graphics/enemies_img/attack_v3.png') # load fireshot projectile image
-    LBOSSPROJEKTILBALL = pygame.transform.scale(LBOSSPROJEKTILBALL, (200,200) )
+    LBOSSPROJEKTILBALL = pygame.transform.scale(RBOSSPROJEKTIL, (200,200) )
     RBOSSPROJEKTILBALL = pygame.transform.flip(LBOSSPROJEKTILBALL, True, False)
 
     LBOSSPROJEKTILBALLDES = pygame.image.load('graphics/enemies_img/attack_v4.png') # load fireshot projectile image
-    LBOSSPROJEKTILBALLDES = pygame.transform.scale(LBOSSPROJEKTILBALLDES, (200,200) )
+    LBOSSPROJEKTILBALLDES = pygame.transform.scale(LBOSSPROJEKTILBALLDES, (200,80) )
     RBOSSPROJEKTILBALLDES = pygame.transform.flip(LBOSSPROJEKTILBALLDES, True, False)
 
 
@@ -1153,6 +1150,59 @@ def game_over():
                     return
                 elif (960-450 < mouse_x < 940-288) and (550 < mouse_y < 592):
                     terminate()
+
+def game_over_win():
+    """display game over screen with quit and reset option"""
+    main_character.position_x = 175
+    main_character.position_y = 275
+    DISPLAYSURF.fill(BLACK)
+    text_surface = BASICFONTLARGE.render("VICTORY!",False,WHITE)
+    level_surface = BASICFONT.render(f"Level achieved: {main_character.level}", False, WHITE)
+    DISPLAYSURF.blit(text_surface,(125,50))
+    DISPLAYSURF.blit(level_surface,(240,255))
+    DISPLAYSURF.blit(MANUALIMG,(700,500))
+    draw_hero(main_character,0,0,False)
+
+    button("Try Again", 100, 550,WHITE,DARKGREEN, 162, 42)
+    button("Quit", 2*HALFWINWIDTH-450,550,WHITE,DARKRED, 162, 42)
+
+    try:
+        get_qr(f"Hero level: {main_character.level}") # More info in the future (max wave, max hps, etc...)
+        QRIMAGE = pygame.image.load('last_score/qr.png')
+        DISPLAYSURF.blit(QRIMAGE,(575,175)) 
+    except:
+        pass
+    
+    while True:
+        pygame.display.update()  
+        for event in pygame.event.get():
+            if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
+                terminate()
+            if event.type == MOUSEMOTION:
+                mouse_x = pygame.mouse.get_pos()[0]
+                mouse_y = pygame.mouse.get_pos()[1]
+                
+
+                if (100 < mouse_x < 262) and (550 < mouse_y < 592):
+                    button("Try Again", 100, 550,DARKGREEN,WHITE, 162, 42)
+                else:
+                    button("Try Again", 100, 550, WHITE,DARKGREEN, 162, 42)
+
+                if (2*HALFWINWIDTH-450 < mouse_x < 2*HALFWINWIDTH-288) and (550 < mouse_y < 592):
+                    button("Quit", 2*HALFWINWIDTH-450,550,DARKRED,WHITE, 162, 42)
+                else:
+                    button("Quit", 2*HALFWINWIDTH-450,550,WHITE,DARKRED, 162, 42)
+
+            #                if ()
+            
+            if event.type == MOUSEBUTTONUP:
+                mouse_x = pygame.mouse.get_pos()[0]
+                mouse_y = pygame.mouse.get_pos()[1]
+                if (100 < mouse_x < 262) and (550 < mouse_y < 592):
+                    run_game() # not sure of the recursion 
+                    return
+                elif (960-450 < mouse_x < 940-288) and (550 < mouse_y < 592):
+                    terminate()
  
 def button(text, position_x, position_y, COLOR, BACKGROUND, width, height):
     """draw button with text and ability to click on"""
@@ -1267,7 +1317,7 @@ def boss_stage1():
         for (fireshot1) in fire_shot_objs:
             check_for_fire_shot_collision(main_character, fireshot1, fireshot1.image, demon_lord1)
             check_for_fire_shot_collision(main_character, fireshot1, fireshot1.image, magic_pillars_obj)
-            check_for_fire_shot_collision(main_character,fireshot1, fireshot1.image, boss_fire_shot_objs)
+            check_for_fire_shot_collision2(main_character,fireshot1, fireshot1.image, boss_fire_shot_objs)
 
         for (boss_fire_shot1) in boss_fire_shot_objs:
             boss_fire_shot1.update()
@@ -1355,6 +1405,7 @@ def boss_stage1():
         # synchronize time inside hero class
         main_character.update()
         # move player
+        draw_entity(main_character,camera_x,camera_y)
                 
         #hero movement
         if hero_collision == False:
@@ -1366,7 +1417,7 @@ def boss_stage1():
         boss_stage_check_for_damage()
         
         if len(demon_lord1)==0:
-            game_over()
+            game_over_win()
         #update display and time
         pygame.display.update()
         FPSCLOCK.tick(FPS)
