@@ -1,7 +1,8 @@
 import random, pygame
 
 class Boss():
-    def __init__(self, image, image_barrier, image_no_barrier,position_x, position_y, max_health, Projectile_Class, Projectile_image):
+    def __init__(self, image, image_barrier, image_no_barrier,position_x, position_y, max_health, Projectile_Class, Projectile_image, projectileball_image, projectileball_des_image,
+             projectileball_class    ):
         self.position_x : int = position_x
         self.position_y : int = position_y
         self.current_health : int = max_health
@@ -17,6 +18,9 @@ class Boss():
         self.Projectile_Class = Projectile_Class
         self.Projectile_image = Projectile_image
         self.projectile_objs = []
+        self.projectileball_image = projectileball_image
+        self.projectileball_des_image = projectileball_des_image
+        self.Projectileball_Class = projectileball_class
 
     def change_barrier_state(self):
         if self.image == self.image_barrier:
@@ -45,9 +49,15 @@ class Boss():
         pass
 
     def attack(self):
-        projectile_position_y = random.randint(self.position_y-250,self.position_y+250)
-        projectile = self.Projectile_Class(self.Projectile_image,self.position_x,projectile_position_y,10,"right")
-        self.projectile_objs.append(projectile)
+        random_choice = random.randint(0,1)
+        if random_choice == 0:
+            projectile_position_y = random.randint(self.position_y-250,self.position_y+250)
+            projectile = self.Projectile_Class(self.Projectile_image,self.position_x,projectile_position_y,10,"right")
+            self.projectile_objs.append(projectile)
+        elif random_choice == 1:
+            projectile_position_y = random.randint(self.position_y-250,self.position_y+250)
+            projectile = self.Projectileball_Class(self.projectileball_image,self.position_x,projectile_position_y,10,"right", self.projectileball_des_image)
+            self.projectile_objs.append(projectile)
         pass
 
     def update(self): # matches time with main and check if its time for spawn

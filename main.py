@@ -15,6 +15,7 @@ from enemies_classes.boss import Boss
 from enemies_classes.magic_pillar import Magic_Pillar
 from fire_shot import Fire_Shot
 from enemies_classes.boss_bluefire_shot import Bluefire_Shot
+from enemies_classes.boss_blueball_shot import Blueball_Shot
 
 FPS = 30
 WINWIDTH = 4* 240
@@ -62,6 +63,7 @@ def main():
     global RSWORDPARTICLES, LSWORDPARTICLES, R2HEROIMG,L2HEROIMG, R3HEROIMG, L3HEROIMG, LGOBLINMAGEIMG, RGOBLINMAGEIMG, LSMALLGOBLINIMG, RSMALLGOBLINIMG
     global RWOLF, LWOLF, RUNRWOLF, RUNLWOLF, RHEROMAGEIMG, LHEROMAGEIMG, MANUALIMG, RHEROMAGEATTIMG, LHEROMAGEATTIMG, RMAGEPROJEKTIL, LMAGEPROJEKTIL, no_key_pressed
     global BOSSIMG, BOSSBARIERIMG, BOSSPILLAR, BOSSGRASSIMG, LBOSSPROJEKTIL,  RBOSSPROJEKTIL, GRASSIMG2, BOSSSTAGELOADIMG
+    global RBOSSPROJEKTILBALL, LBOSSPROJEKTILBALL, RBOSSPROJEKTILBALLDES, LBOSSPROJEKTILBALLDES, AIR
     
     #initialize pygame
     pygame.init()
@@ -108,12 +110,16 @@ def main():
     LSMALLGOBLINIMG = pygame.transform.scale(LSMALLGOBLINIMG,(80, 80))
     RSMALLGOBLINIMG = pygame.transform.flip(LSMALLGOBLINIMG,True, False)
     
-    RWOLF = pygame.image.load('graphics/enemies_img/wolf.png') # load wolf image
+    RWOLF = pygame.image.load('graphics/enemies_img/wolf_v4.png') # load wolf image
     RWOLF = pygame.transform.scale(RWOLF,(100,100))
     LWOLF = pygame.transform.flip(RWOLF,True,False)
-    RUNRWOLF = pygame.image.load('graphics/other_img/ker2david.png')
+
+    RUNRWOLF = pygame.image.load('graphics/enemies_img/wolf_v3.png')
     RUNRWOLF = pygame.transform.scale(RUNRWOLF,(100,100))
     RUNLWOLF = pygame.transform.flip(RUNRWOLF,True,False)
+
+    AIR = pygame.image.load('graphics/enemies_img/airparicles_v2.png')
+    AIR = pygame.transform.scale(AIR,(100,100))
 
     #objs imgs
     TREEIMG = pygame.image.load('graphics/other_img/tree_v2.png') # load tree image
@@ -150,6 +156,14 @@ def main():
     LBOSSPROJEKTIL = pygame.image.load('graphics/enemies_img/boss_fire_projectile_shot.png') # load fireshot projectile image
     LBOSSPROJEKTIL = pygame.transform.scale(LBOSSPROJEKTIL, (200,200) )
     RBOSSPROJEKTIL = pygame.transform.flip(LBOSSPROJEKTIL, True, False)
+
+    LBOSSPROJEKTILBALL = pygame.image.load('graphics/enemies_img/attack_v3.png') # load fireshot projectile image
+    LBOSSPROJEKTILBALL = pygame.transform.scale(LBOSSPROJEKTILBALL, (200,200) )
+    RBOSSPROJEKTILBALL = pygame.transform.flip(LBOSSPROJEKTILBALL, True, False)
+
+    LBOSSPROJEKTILBALLDES = pygame.image.load('graphics/enemies_img/attack_v4.png') # load fireshot projectile image
+    LBOSSPROJEKTILBALLDES = pygame.transform.scale(LBOSSPROJEKTILBALLDES, (200,200) )
+    RBOSSPROJEKTILBALLDES = pygame.transform.flip(LBOSSPROJEKTILBALLDES, True, False)
 
 
     RSWORDPARTICLES = pygame.image.load('graphics/hero_img/sword_particles.png') # load swordparticles image
@@ -245,7 +259,7 @@ def run_game():
 
     #wolf enemy
     for wolf in range(NUMSWOLF):
-        wolf = Wolf(LWOLF,RWOLF,RUNLWOLF,RUNRWOLF,0,0,1,5)
+        wolf = Wolf(LWOLF,RWOLF,RUNLWOLF,RUNRWOLF,0,0,1,5, AIR)
         wolf.get_random_position_off_screen(moveUp, moveDown, moveLeft, moveRight, MAXOFFSCREENPOS, WINWIDTH, WINHEIGHT)
         wolf_objs.append(wolf)
 
@@ -328,7 +342,7 @@ def run_game():
                 goblinmage1_objs.append(goblinmage1)
 
             while len(wolf_objs) < current_max_wolf and len(wolf_objs) < (current_max_wolf - current_wolf_killed):
-                wolf1=  Wolf(LWOLF,RWOLF,0,0,1,5)
+                wolf1=  Wolf(LWOLF,RWOLF,RUNLWOLF,RUNRWOLF,0,0,1,5, AIR)
                 wolf1.get_random_position_off_screen(moveUp, moveDown, moveLeft, moveRight, MAXOFFSCREENPOS, WINWIDTH, WINHEIGHT)
                 wolf1.position_x += camera_x
                 wolf1.position_y += camera_y
@@ -361,6 +375,8 @@ def run_game():
 
         #draw wolf
         for wolf in wolf_objs:
+            if wolf.image == wolf.running_left_image or wolf.image == wolf.running_right_image :
+                draw_entity2(wolf,camera_x,camera_y)
             draw_entity(wolf, camera_x, camera_y)
             wolf.move(main_character.position_x, main_character.position_y)
 
@@ -551,6 +567,12 @@ def draw_entity(hero, camera_x, camera_y):
     heroRect.center = (hero.position_x - camera_x, hero.position_y - camera_y)
     DISPLAYSURF.blit(hero.image, heroRect)
 
+def draw_entity2(hero, camera_x, camera_y):
+    """draw entity on screen(hero,enemies,projektils)"""
+    heroRect = hero.air_image.get_rect()
+    heroRect.center = (hero.position_x - camera_x, hero.position_y - camera_y)
+    DISPLAYSURF.blit(hero.air_image, heroRect)
+
 def draw_hero(hero, camera_x, camera_y,attackKey):
     """draw hero on screen and make attack animation if needed"""
     heroRect = hero.image.get_rect() # gets hero rect
@@ -618,6 +640,8 @@ def hero_attack_sword(hero):
         for (smallgoblin1) in smallgoblin1_objs:
             draw_entity(smallgoblin1, camera_x, camera_y)
         for (wolf1) in wolf_objs:
+            if wolf1.image == wolf1.running_left_image or wolf1.image == wolf1.running_right_image :
+                draw_entity2(wolf1,camera_x,camera_y)
             draw_entity(wolf1,camera_x, camera_y)
         if pause > 0:
             draw_progress_bar_pause(pause, 150)
@@ -642,6 +666,8 @@ def hero_attack_sword(hero):
         for (smallgoblin1) in smallgoblin1_objs:
             draw_entity(smallgoblin1, camera_x, camera_y)
         for (wolf1) in wolf_objs:
+            if wolf1.image == wolf1.running_left_image or wolf1.image == wolf1.running_right_image :
+                draw_entity2(wolf1,camera_x,camera_y)
             draw_entity(wolf1,camera_x, camera_y)
         if pause > 0:
             draw_progress_bar_pause(pause, 150)
@@ -672,6 +698,8 @@ def hero_attack_sword(hero):
         for (smallgoblin1) in smallgoblin1_objs:
             draw_entity(smallgoblin1, camera_x, camera_y)
         for (wolf1) in wolf_objs:
+            if wolf1.image == wolf1.running_left_image or wolf1.image == wolf1.running_right_image :
+                draw_entity2(wolf1,camera_x,camera_y)
             draw_entity(wolf1,camera_x, camera_y)
         if pause > 0:
             draw_progress_bar_pause(pause, 150)
@@ -696,6 +724,8 @@ def hero_attack_sword(hero):
         for (smallgoblin1) in smallgoblin1_objs:
             draw_entity(smallgoblin1, camera_x, camera_y)
         for (wolf1) in wolf_objs:
+            if wolf1.image == wolf1.running_left_image or wolf1.image == wolf1.running_right_image :
+                draw_entity2(wolf1,camera_x,camera_y)
             draw_entity(wolf1,camera_x, camera_y)
         if pause > 0:
             draw_progress_bar_pause(pause, 150)
@@ -731,6 +761,8 @@ def hero_attack_mage(hero):
             for (smallgoblin1) in smallgoblin1_objs:
                 draw_entity(smallgoblin1, camera_x, camera_y)
             for (wolf1) in wolf_objs:
+                if wolf1.image == wolf1.running_left_image or wolf1.image == wolf1.running_right_image :
+                    draw_entity2(wolf1,camera_x,camera_y)
                 draw_entity(wolf1,camera_x, camera_y)
             if pause > 0:
                 draw_progress_bar_pause(pause, 150)
@@ -754,6 +786,8 @@ def hero_attack_mage(hero):
             for (smallgoblin1) in smallgoblin1_objs:
                 draw_entity(smallgoblin1, camera_x, camera_y)
             for (wolf1) in wolf_objs:
+                if wolf1.image == wolf1.running_left_image or wolf1.image == wolf1.running_right_image :
+                    draw_entity2(wolf1,camera_x,camera_y)
                 draw_entity(wolf1,camera_x, camera_y)
             if pause > 0:
                 draw_progress_bar_pause(pause, 150)
@@ -777,6 +811,8 @@ def hero_attack_mage(hero):
             for (smallgoblin1) in smallgoblin1_objs:
                 draw_entity(smallgoblin1, camera_x, camera_y)
             for (wolf1) in wolf_objs:
+                if wolf1.image == wolf1.running_left_image or wolf1.image == wolf1.running_right_image :
+                    draw_entity2(wolf1,camera_x,camera_y)
                 draw_entity(wolf1,camera_x, camera_y)
             if pause > 0:
                 draw_progress_bar_pause(pause, 150)
@@ -800,6 +836,8 @@ def hero_attack_mage(hero):
             for (smallgoblin1) in smallgoblin1_objs:
                 draw_entity(smallgoblin1, camera_x, camera_y)
             for (wolf1) in wolf_objs:
+                if wolf1.image == wolf1.running_left_image or wolf1.image == wolf1.running_right_image :
+                    draw_entity2(wolf1,camera_x,camera_y)
                 draw_entity(wolf1,camera_x, camera_y)
             if pause > 0:
                 draw_progress_bar_pause(pause, 150)
@@ -842,6 +880,26 @@ def check_for_fire_shot_collision(hero,fireshot1, FIRESHOT, enemy_obj, count = 0
         if fireshot1Rect.colliderect(enemyRect):
             enemy.is_hit(main_character.position_x,main_character.position_y, 1) # apply damage on enemy
             if enemy.current_health == 0: # check if enemy gets killed
+                count += 1 # level up hero
+                enemy_obj.remove(enemy) # remove enemy
+                if hero.current_health < hero.max_health:
+                    hero.current_health += 1 # heal hero
+           
+    return count
+
+def check_for_fire_shot_collision2(hero,fireshot1, FIRESHOT, enemy_obj, count = 0):
+    """check for collision between fireshot projectile and enemies"""
+    # get fireshot width, height and rect
+    fireshot1_width = FIRESHOT.get_width()
+    fireshot1_height = FIRESHOT.get_height()
+    fireshot1Rect = pygame.Rect(fireshot1.position_x-camera_x - fireshot1_width//2,fireshot1.position_y-camera_y-fireshot1_height//2, fireshot1_width, fireshot1_height) 
+    # check for collision between lists of enemies and fireshot projectile
+    for (enemy) in enemy_obj:
+        enemyRect = enemy.get_enemy_rect(camera_x,camera_y)
+        if fireshot1Rect.colliderect(enemyRect):
+            enemy.is_hit(main_character.position_x,main_character.position_y, 1) # apply damage on enemy
+            if enemy.current_health == 0 and enemy.time_to_remove: # check if enemy gets killed
+                
                 count += 1 # level up hero
                 enemy_obj.remove(enemy) # remove enemy
                 if hero.current_health < hero.max_health:
@@ -1138,7 +1196,7 @@ def boss_stage1():
     moveUp = False
     moveDown = False
     attackKey = False
-    demon_lord = Boss(BOSSBARIERIMG, BOSSBARIERIMG, BOSSIMG, 140, HALFWINHEIGHT, 250, Bluefire_Shot, RBOSSPROJEKTIL)
+    demon_lord = Boss(BOSSBARIERIMG, BOSSBARIERIMG, BOSSIMG, 140, HALFWINHEIGHT, 250, Bluefire_Shot, RBOSSPROJEKTIL, LBOSSPROJEKTILBALL, LBOSSPROJEKTILBALLDES, Blueball_Shot)
     magic_pillar1 = Magic_Pillar(BOSSPILLAR, 100,100,25)
     magic_pillar2 = Magic_Pillar(BOSSPILLAR, 250,180,25)
     magic_pillar3 = Magic_Pillar(BOSSPILLAR, 100,650,25)
@@ -1210,6 +1268,9 @@ def boss_stage1():
             check_for_fire_shot_collision(main_character, fireshot1, fireshot1.image, demon_lord1)
             check_for_fire_shot_collision(main_character, fireshot1, fireshot1.image, magic_pillars_obj)
             check_for_fire_shot_collision(main_character,fireshot1, fireshot1.image, boss_fire_shot_objs)
+
+        for (boss_fire_shot1) in boss_fire_shot_objs:
+            boss_fire_shot1.update()
 
         # moving, drawing on display and removing fireshots if it is outside of active area
         for fire_shot1 in fire_shot_objs[:]:

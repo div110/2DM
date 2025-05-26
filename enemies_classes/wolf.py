@@ -1,7 +1,7 @@
 import random, pygame
 
 class Wolf():
-    def __init__(self, left_image, right_image, running_left_image, running_right_image, position_x, position_y, speed, max_health):
+    def __init__(self, left_image, right_image, running_left_image, running_right_image, position_x, position_y, speed, max_health, air_image):
         self.position_x : int = position_x
         self.position_y : int = position_y
         self.speed : int = 20 * speed 
@@ -12,7 +12,8 @@ class Wolf():
         self.right_image = right_image
         self.running_left_image = running_left_image
         self.running_right_image = running_right_image
-        self.knockback = 150
+        self.air_image = air_image
+        self.knockback = 25
         self.counter = 0
         self.vector = [0,0] 
     

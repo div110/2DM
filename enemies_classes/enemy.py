@@ -10,7 +10,7 @@ class Enemy():
         self.image : str = left_image 
         self.left_image = left_image
         self.right_image = right_image
-        self.knockback = 150
+        self.knockback = 25
     
     
     def move(self, player_x, player_y):

@@ -1,7 +1,7 @@
 import random, pygame
 
-class Bluefire_Shot():
-    def __init__(self, image,position_x, position_y, difficulty, direction):
+class Blueball_Shot():
+    def __init__(self, image,position_x, position_y, difficulty, direction, destroyed_image):
         self.position_x : int = position_x
         self.position_y : int = position_y
         self.difficulty : int = 4
@@ -9,7 +9,10 @@ class Bluefire_Shot():
         self.direction = direction
         self.max_health = 5
         self.current_health = self.max_health
-        self.time_to_remove = True
+        self.destroyed_image = destroyed_image
+        self.remove_destroyed_time = 4000
+        self.destroyed_time = None
+        self.time_to_remove = False
 
     
     
@@ -55,6 +58,20 @@ class Bluefire_Shot():
     
     def is_hit(self,player_x, player_y, damage):
         self.current_health -= damage
-    
+
+    def get_destroyed(self):
+        self.image = self.destroyed_image
+        self.destroyed_time = pygame.time.get_ticks()
+        self.current_health = 10000
+
     def update(self): # matches time with main and check if its time for spawn
-        pass
+        current_time = pygame.time.get_ticks()
+        if not self.destroyed_time == None:
+            if current_time - self.destroyed_time > self.remove_destroyed_time:
+                self.time_to_remove = True
+            pass
+        if self.current_health == 0:
+            self.get_destroyed()
+            
+        
+        
