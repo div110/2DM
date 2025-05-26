@@ -4,7 +4,6 @@ import random, sys, time, math, pygame
 from pygame.locals import *
 
 
-from last_score.qr import get_qr
 from hero import Hero
 from enemies_classes.enemy import Enemy
 from objects_classes.tree import Tree
@@ -1113,12 +1112,8 @@ def game_over():
     button("Try Again", 100, 550,WHITE,DARKGREEN, 162, 42)
     button("Quit", 2*HALFWINWIDTH-450,550,WHITE,DARKRED, 162, 42)
 
-    try:
-        get_qr(f"Hero level: {main_character.level}") # More info in the future (max wave, max hps, etc...)
-        QRIMAGE = pygame.image.load('last_score/qr.png')
-        DISPLAYSURF.blit(QRIMAGE,(575,175)) 
-    except:
-        pass
+    QRIMAGE = pygame.image.load('graphics/other_img/qr.png')
+    DISPLAYSURF.blit(QRIMAGE,(575,160)) 
     
     while True:
         pygame.display.update()  
