@@ -1116,7 +1116,7 @@ def game_over():
     button("Quit", 2*HALFWINWIDTH-450,550,WHITE,DARKRED, 162, 42)
 
     QRIMAGE = pygame.image.load('graphics/other_img/qr.png')
-    DISPLAYSURF.blit(QRIMAGE,(575,175)) 
+    DISPLAYSURF.blit(QRIMAGE,(575,160)) 
     
     while True:
         pygame.display.update()  
